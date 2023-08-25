@@ -6,18 +6,13 @@ import chessboard from "@/../public/images/board.png";
 import { pieceImageData } from "@/utils/pieces";
 import convertBoardArrayToFEN from "@/utils/FENConfig";
 import { AiFillPlusSquare } from "react-icons/ai";
-import { Chess } from "chess.js";
+import { Chess, Piece } from "chess.js";
 
 export default function Playpage() {
   const chess = new Chess();
-  const [boardArray, setBoardArray] = useState<any>([]);
+  const [boardArray, setBoardArray] = useState(chess.board());
 
-  useEffect(() => {
-    console.log(boardArray);
-    setBoardArray(chess.board());
-  }, []);
-
-  console.log(convertBoardArrayToFEN(boardArray));
+  console.log(boardArray);
 
   return (
     <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
@@ -25,14 +20,14 @@ export default function Playpage() {
       <div className="relative sm:w-1/2 md:2/3 w-full justify-center flex items-center">
         <Image src={chessboard} alt="Chessboard" className="w-full" />
         <div className="grid grid-cols-8 grid-rows-8 absolute top-0 w-full">
-          {boardArray.map((row: any, index: number) => {
-            return row.map((piece: any, index: number) => {
+          {boardArray.map((row: any, rowIndex: number) => {
+            return row.map((piece: any, colIndex: number) => {
               return (
                 <div
-                  key={index}
+                  key={colIndex}
                   className="w-full flex items-center justify-center h-full"
                 >
-                  {piece && (
+                  {piece ? (
                     <Image
                       src={pieceImageData(piece.type, piece.color)}
                       alt="piece"
@@ -40,6 +35,8 @@ export default function Playpage() {
                       height={100}
                       className="w-full h-full"
                     />
+                  ) : (
+                    <></>
                   )}
                 </div>
               );
