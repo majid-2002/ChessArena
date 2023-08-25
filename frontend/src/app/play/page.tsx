@@ -4,6 +4,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import chessboard from "@/../public/images/board.png";
 import { pieceImageData } from "@/utils/pieces";
+import convertBoardArrayToFEN from "@/utils/FENConfig";
 import { AiFillPlusSquare } from "react-icons/ai";
 import { Chess } from "chess.js";
 
@@ -12,9 +13,11 @@ export default function Playpage() {
   const [boardArray, setBoardArray] = useState<any>([]);
 
   useEffect(() => {
-    setBoardArray(chess.board());
     console.log(boardArray);
+    setBoardArray(chess.board());
   }, []);
+
+  console.log(convertBoardArrayToFEN(boardArray));
 
   return (
     <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
