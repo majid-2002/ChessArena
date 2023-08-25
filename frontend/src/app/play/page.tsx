@@ -27,7 +27,7 @@ export default function Playpage() {
                   key={colIndex}
                   className="w-full flex items-center justify-center h-full"
                 >
-                  {piece ? (
+                  {piece?.color == "b" && (
                     <Image
                       src={pieceImageData(piece.type, piece.color)}
                       alt="piece"
@@ -35,8 +35,46 @@ export default function Playpage() {
                       height={100}
                       className="w-full h-full"
                     />
-                  ) : (
-                    <></>
+                  )}
+                </div>
+              );
+            });
+          })}
+          {boardArray.map((row: any, rowIndex: number) => {
+            return row.map((piece: any, colIndex: number) => {
+              return (
+                <div
+                  key={colIndex}
+                  className="w-full flex items-center justify-center h-full"
+                >
+                  {piece == null && (
+                    <Image
+                      src={pieceImageData(piece?.type, piece?.color)}
+                      alt="piece"
+                      width={100}
+                      height={100}
+                      className="w-full h-full vis"
+                    ></Image>
+                  )}
+                </div>
+              );
+            });
+          })}
+          {boardArray.map((row: any, rowIndex: number) => {
+            return row.map((piece: any, colIndex: number) => {
+              return (
+                <div
+                  key={colIndex}
+                  className="w-full flex items-center justify-center h-full"
+                >
+                  {piece?.color == "w" && (
+                    <Image
+                      src={pieceImageData(piece.type, piece.color)}
+                      alt="piece"
+                      width={100}
+                      height={100}
+                      className="w-full h-full"
+                    />
                   )}
                 </div>
               );
