@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="flex flex-col min-h-screen w-full py-9 bg-neutral-800">
+    <main className="flex flex-col min-h-screen w-full py-9 ">
       <div className="flex">
         <div className="w-1/2 hidden items-center justify-center sm:flex">
           <Image src={chessboard} alt="Chessboard" width={600} height={500} className="rounded-lg"/>
