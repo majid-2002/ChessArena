@@ -11,8 +11,8 @@ import { Chess, Piece } from "chess.js";
 export default function Playpage() {
   const chess = new Chess();
   const [boardArray, setBoardArray] = useState(chess.board());
-
-  console.log(boardArray);
+  const [currentPosition, setCurrentPosition] = useState<string>("");
+  const [moves, setMoves] = useState<string[]>([]);
 
   let board = [];
   const verticalAxis = ["1", "2", "3", "4", "5", "6", "7", "8"];
@@ -23,8 +23,6 @@ export default function Playpage() {
       board.push(horizontalAxis[j] + verticalAxis[i]);
     }
   }
-
-  console.log(board);
 
   return (
     <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
@@ -42,15 +40,32 @@ export default function Playpage() {
             return (
               <div key={pieceKey} className="h-full w-full">
                 {piece ? (
-                  <Image
-                    src={pieceImageData(piece.type, piece.color)}
-                    alt="piece"
-                    width={200}
-                    height={200}
-                    className="w-full h-full"
-                  />
+                  <div onClick={() => {
+                    if (moves.length === 0) {
+                      setMoves(chess.moves({ square: piece.square }))
+                      setCurrentPosition(piece.square)
+                    }
+                    else {
+                      setMoves([])
+                      setCurrentPosition("")
+                    }
+                  }}>
+                    <Image
+                      src={pieceImageData(piece.type, piece.color)}
+                      alt="piece"
+                      width={200}
+                      height={200}
+                      className="w-full h-full"
+                    />
+                  </div>
                 ) : (
-                  <div className="w-full h-full">
+                  <div className={"w-full h-full " + (moves.includes(square) ? "bg-[#0077ff55]" : "")} onClick={() => {
+                    if (moves.length > 0) {
+                      chess.move({ from: currentPosition, to: square })
+                      setMoves([])
+                      setBoardArray(chess.board())
+                    }
+                  }}>
                     <Image
                       src={pieceImageData("p", "b")}
                       alt="piece"
