@@ -12,6 +12,8 @@ export default function Playpage() {
   const chess = new Chess();
   const [boardArray, setBoardArray] = useState(chess.board());
 
+  console.log(boardArray);
+
   let board = [];
   const verticalAxis = ["1", "2", "3", "4", "5", "6", "7", "8"];
   const horizontalAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
@@ -27,17 +29,37 @@ export default function Playpage() {
   return (
     <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
       {/* Chessboard */}
-      <div className="relative sm:w-1/2 md:2/3 w-full justify-center flex items-center">
-        <Image src={chessboard} alt="Chessboard" className="w-full" />
-        <div className="grid grid-cols-8 grid-rows-8 absolute top-0 w-full h-full">
-          {board.map((piece, index) => {
-            
+      <div className="relative sm:w-[800px] w-full justify-center flex items-center">
+        <Image src={chessboard} alt="Chessboard" className="w-full h-full" />
+        <div className="grid grid-cols-8 grid-rows-8 absolute top-0 w-full ">
+          {board.map((square, index) => {
+            const row = Math.floor(index / 8);
+            const col = square.charCodeAt(0) - "a".charCodeAt(0);
+
+            const piece = boardArray[row][col];
+            const pieceKey = row * 8 + col; // Generate a unique key for each piece
+
             return (
-              <div
-                key={index}
-                className="w-full h-full flex items-center justify-center"
-              >
-                {piece}
+              <div key={pieceKey} className="h-full w-full">
+                {piece ? (
+                  <Image
+                    src={pieceImageData(piece.type, piece.color)}
+                    alt="piece"
+                    width={200}
+                    height={200}
+                    className="w-full h-full"
+                  />
+                ) : (
+                  <div className="w-full h-full">
+                    <Image
+                      src={pieceImageData("p", "b")}
+                      alt="piece"
+                      width={200}
+                      height={200}
+                      className="w-full h-full opacity-0"
+                    />
+                  </div>
+                )}
               </div>
             );
           })}
