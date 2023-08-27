@@ -13,6 +13,7 @@ export default function Playpage() {
   const [boardArray, setBoardArray] = useState(chess.board());
   const [currentPosition, setCurrentPosition] = useState<string>("");
   const [moves, setMoves] = useState<string[]>([]);
+  const [fen, setNewfen] = useState(chess.fen());
 
   // let board = [];
   // const verticalAxis = ["1", "2", "3", "4", "5", "6", "7", "8"];
@@ -43,6 +44,8 @@ export default function Playpage() {
                     <div
                       onClick={() => {
                         if (moves.length === 0) {
+                          chess.load(fen);
+                          console.log(chess.fen());
                           setMoves(chess.moves({ square: piece.square }));
                           setCurrentPosition(piece.square);
                         } else {
@@ -89,8 +92,9 @@ export default function Playpage() {
                       }
                       onClick={() => {
                         if (moves.length > 0) {
+                          chess.load(fen);
                           chess.move({ from: currentPosition, to: square });
-                          chess.load(chess.fen());
+                          setNewfen(chess.fen());
                           setBoardArray(chess.board());
                           setMoves([]);
                         }
