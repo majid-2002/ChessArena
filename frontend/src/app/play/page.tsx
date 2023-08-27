@@ -42,6 +42,7 @@ export default function Playpage() {
                 <div key={colIndex} className="h-full w-full relative">
                   {piece ? (
                     <div
+                      className = {square === currentPosition ? "w-full h-full bg-[#BBCC44]" : "w-full h-full "}
                       onClick={() => {
                         if (moves.length === 0) {
                           chess.load(fen);
@@ -88,7 +89,7 @@ export default function Playpage() {
                     <div
                       className={
                         "w-full h-full " +
-                        (moves.includes(square) ? "bg-[#0077ff55]" : "")
+                        (moves.includes(square) ? "bg-[#f4f680] border border-[#efe862]" : "")
                       }
                       onClick={() => {
                         if (moves.length > 0) {
