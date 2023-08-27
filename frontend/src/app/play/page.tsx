@@ -24,10 +24,14 @@ export default function Playpage() {
     }
   }
 
+  useEffect(() => {
+    console.log(moves);
+  }, [moves]);
+
   return (
     <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
       {/* Chessboard */}
-      <div className="relative sm:w-[800px] w-full justify-center flex items-center">
+      <div className="relative w-full sm:w-1/2 justify-center flex items-center">
         <Image src={chessboard} alt="Chessboard" className="w-full h-full" />
         <div className="grid grid-cols-8 grid-rows-8 absolute top-0 w-full ">
           {board.map((square, index) => {
@@ -38,18 +42,38 @@ export default function Playpage() {
             const pieceKey = row * 8 + col; // Generate a unique key for each piece
 
             return (
-              <div key={pieceKey} className="h-full w-full">
+              <div key={pieceKey} className="h-full w-full relative">
                 {piece ? (
-                  <div onClick={() => {
-                    if (moves.length === 0) {
-                      setMoves(chess.moves({ square: piece.square }))
-                      setCurrentPosition(piece.square)
-                    }
-                    else {
-                      setMoves([])
-                      setCurrentPosition("")
-                    }
-                  }}>
+                  <div
+                    onClick={() => {
+                      if (moves.length === 0) {
+                        //? If no moves are available, show the moves for the piece
+                        setMoves(chess.moves({ square: piece.square })); //? Get the moves for the piece
+                        setCurrentPosition(piece.square);
+                      } else {
+                        setMoves([]);
+                        setCurrentPosition("");
+                      }
+                    }}
+                  >
+                    {row + 1 == 8 && (
+                      <div
+                        className={`absolute bottom-0 right-1 text-sm ${
+                          (col + 1) % 2 == 0 ? "text-green-700" : "text-white"
+                        }`}
+                      >
+                        {square.split("")[0]}
+                      </div>
+                    )}
+                    {col == 0 && (
+                      <div
+                        className={`absolute top-0 left-1 text-sm ${
+                          (row + 1) % 2 == 0 ? "text-white" : "text-green-700"
+                        }`}
+                      >
+                        {square.split("")[1]}
+                      </div>
+                    )}
                     <Image
                       src={pieceImageData(piece.type, piece.color)}
                       alt="piece"
@@ -59,13 +83,28 @@ export default function Playpage() {
                     />
                   </div>
                 ) : (
-                  <div className={"w-full h-full " + (moves.includes(square) ? "bg-[#0077ff55]" : "")} onClick={() => {
-                    if (moves.length > 0) {
-                      chess.move({ from: currentPosition, to: square })
-                      setMoves([])
-                      setBoardArray(chess.board())
+                  <div
+                    className={
+                      "w-full h-full " +
+                      (moves.includes(square) ? "bg-[#0077ff55]" : "")
                     }
-                  }}>
+                    onClick={() => {
+                      if (moves.length > 0) {
+                        chess.move({ from: currentPosition, to: square });
+                        setMoves([]);
+                        setBoardArray(chess.board());
+                      }
+                    }}
+                  >
+                    {col == 0 && (
+                      <div
+                        className={`absolute top-0 left-1 text-sm ${
+                          (row + 1) % 2 == 0 ? "text-white" : "text-green-700"
+                        }`}
+                      >
+                        {square.split("")[1]}
+                      </div>
+                    )}
                     <Image
                       src={pieceImageData("p", "b")}
                       alt="piece"
