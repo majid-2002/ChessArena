@@ -6,7 +6,7 @@ import chessboard from "@/../public/images/board.png";
 import { pieceImageData } from "@/utils/pieces";
 import convertBoardArrayToFEN from "@/utils/FENConfig";
 import { AiFillPlusSquare } from "react-icons/ai";
-import { Chess, Piece } from "chess.js";
+import { Chess, Piece, Square } from "chess.js";
 
 export default function Playpage() {
   const chess = new Chess();
@@ -24,11 +24,6 @@ export default function Playpage() {
   //   }
   // }
 
-
-  useEffect(() => {
-    console.log(boardArray)
-  }, [boardArray]);
-
   return (
     <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
       {/* Chessboard */}
@@ -37,12 +32,11 @@ export default function Playpage() {
         <div className="grid grid-cols-8 grid-rows-8 absolute top-0 w-full ">
           {boardArray.map((row: any, rowIndex: number) => {
             return row.map((piece: any, colIndex: number) => {
-              const row = rowIndex + 1;
-              const col = colIndex + 1;
               // start from a8 to h1
-              const square = `${String.fromCharCode(97 + colIndex)}${8 - row + 1}`;
+              const square = `${String.fromCharCode(97 + colIndex)}${
+                8 - rowIndex
+              }`;
 
-              
               return (
                 <div key={colIndex} className="h-full w-full relative">
                   {piece ? (
@@ -96,8 +90,9 @@ export default function Playpage() {
                       onClick={() => {
                         if (moves.length > 0) {
                           chess.move({ from: currentPosition, to: square });
-                          setMoves([]);
+                          chess.load(chess.fen());
                           setBoardArray(chess.board());
+                          setMoves([]);
                         }
                       }}
                     >
