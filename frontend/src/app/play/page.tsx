@@ -14,6 +14,8 @@ export default function Playpage() {
   const [currentPosition, setCurrentPosition] = useState<string>("");
   const [moves, setMoves] = useState<string[]>([]);
   const [fen, setNewfen] = useState(chess.fen());
+  //useSate for the white or black mode
+  const [play, setPlay] = useState<string>("w");
 
   // let board = [];
   // const verticalAxis = ["1", "2", "3", "4", "5", "6", "7", "8"];
@@ -40,13 +42,15 @@ export default function Playpage() {
       {/* Chessboard */}
       <div className="relative w-full sm:w-1/2 justify-center flex items-center">
         <Image src={chessboard} alt="Chessboard" className="w-full h-full" />
+
         <div className="grid grid-cols-8 grid-rows-8 absolute top-0 w-full ">
           {boardArray.map((row: any, rowIndex: number) => {
             return row.map((piece: any, colIndex: number) => {
-              // start from a8 to h1
               const square = `${String.fromCharCode(97 + colIndex)}${
                 8 - rowIndex
               }`;
+
+              // console.log(square);
 
               return (
                 <div key={colIndex} className="h-full w-full relative">
@@ -61,12 +65,6 @@ export default function Playpage() {
                         if (moves.length === 0) {
                           chess.load(fen);
                           setMoves(
-                            chess.moves({
-                              square: piece.square,
-                              piece: piece.type,
-                            })
-                          );
-                          console.log(
                             chess.moves({
                               square: piece.square,
                               piece: piece.type,
@@ -168,9 +166,19 @@ export default function Playpage() {
             <p className="text-xs">Players</p>
           </div>
         </div>
-        <div className=" flex-col flex p-5">
+        <div className=" flex-col flex p-5 space-y-5">
           <div className="bg-lime-300/70 flex items-center justify-center rounded-xl text-center shadow-xl sm:text-2xl text-white font-bold border border-b-8 border-green-900/70 rounded-b-2xl">
             <button className="text-shadow-lg p-2 w-full">Play</button>
+          </div>
+          <div className="bg-neutral-600/70 flex items-center justify-center rounded-xl text-center shadow-xl sm:text-2xl text-white font-bold border border-b-8 border-neutral-800/70 rounded-b-2xl">
+            <button
+              className="text-shadow-lg p-2 w-full"
+              onClick={() => {
+                setPlay(play === "w" ? "b" : "w");
+              }}
+            >
+              Change
+            </button>
           </div>
         </div>
       </div>
