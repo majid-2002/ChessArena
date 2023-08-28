@@ -1,21 +1,20 @@
 "use client";
-
 import Image from "next/image";
-import React, { use, useEffect, useState } from "react";
+import React, { useState } from "react";
 import chessboard from "@/../public/images/board.png";
 import { pieceImageData } from "@/utils/pieces";
-import convertBoardArrayToFEN from "@/utils/FENConfig";
 import { AiFillPlusSquare } from "react-icons/ai";
-import { Chess, Piece, Square } from "chess.js";
+import { Chess } from "chess.js";
 
 export default function Playpage() {
-  const chess = new Chess();
+  const chess = new Chess("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
   const [boardArray, setBoardArray] = useState(chess.board());
   const [currentPosition, setCurrentPosition] = useState<string>("");
   const [moves, setMoves] = useState<string[]>([]);
   const [fen, setNewfen] = useState(chess.fen());
   //useSate for the white or black mode
   const [play, setPlay] = useState<string>("w");
+  const [currentTurn, setCurrentTurn] = useState<string>(chess.turn());
 
   // let board = [];
   // const verticalAxis = ["1", "2", "3", "4", "5", "6", "7", "8"];
@@ -26,7 +25,6 @@ export default function Playpage() {
   //     board.push(horizontalAxis[j] + verticalAxis[i]);
   //   }
   // }
-
   const shouldHighlightSquare = (square: string) => {
     return moves.some((move) => {
       if (move.length === 3) {
@@ -46,11 +44,7 @@ export default function Playpage() {
         <div className="grid grid-cols-8 grid-rows-8 absolute top-0 w-full ">
           {boardArray.map((row: any, rowIndex: number) => {
             return row.map((piece: any, colIndex: number) => {
-              const square = `${String.fromCharCode(97 + colIndex)}${
-                8 - rowIndex
-              }`;
-
-              // console.log(square);
+              const square = `${String.fromCharCode(97 + colIndex)}${8 - rowIndex}`;
 
               return (
                 <div key={colIndex} className="h-full w-full relative">
@@ -70,6 +64,7 @@ export default function Playpage() {
                               piece: piece.type,
                             })
                           );
+                          console.log(piece.square)
                           setCurrentPosition(piece.square);
                         } else {
                           setMoves([]);
@@ -79,22 +74,20 @@ export default function Playpage() {
                     >
                       {rowIndex === 7 && (
                         <div
-                          className={`absolute bottom-0 right-1 text-sm ${
-                            (colIndex + 1) % 2 === 0
-                              ? "text-green-700"
-                              : "text-white"
-                          }`}
+                          className={`absolute bottom-0 right-1 text-sm ${(colIndex + 1) % 2 === 0
+                            ? "text-green-700"
+                            : "text-white"
+                            }`}
                         >
                           {piece.square[0]}
                         </div>
                       )}
                       {colIndex === 0 && (
                         <div
-                          className={`absolute top-0 left-1 text-sm ${
-                            (rowIndex + 1) % 2 === 0
-                              ? "text-white"
-                              : "text-green-700"
-                          }`}
+                          className={`absolute top-0 left-1 text-sm ${(rowIndex + 1) % 2 === 0
+                            ? "text-white"
+                            : "text-green-700"
+                            }`}
                         >
                           {piece.square[1]}
                         </div>
@@ -109,28 +102,38 @@ export default function Playpage() {
                     </div>
                   ) : (
                     <div
-                      className={`w-full h-full ${
-                        shouldHighlightSquare(square)
-                          ? "bg-[#f4f680] border border-[#efe862]"
-                          : ""
-                      }`}
+                      className={`w-full h-full ${shouldHighlightSquare(square)
+                        ? "bg-[#f4f680] border border-[#efe862]"
+                        : ""
+                        }`}
                       onClick={() => {
                         if (moves.length > 0) {
                           chess.load(fen);
                           chess.move({ from: currentPosition, to: square });
                           setNewfen(chess.fen());
+                          setCurrentTurn(chess.turn());
                           setBoardArray(chess.board());
                           setMoves([]);
+
+                          setTimeout(() => {
+                            if (chess.turn() === "b") {
+                              const moves = chess.moves()
+                              const move = moves[Math.floor(Math.random() * moves.length)]
+                              chess.move(move)
+                            }
+                            setNewfen(chess.fen());
+                            setCurrentTurn(chess.turn());
+                            setBoardArray(chess.board());
+                          }, 1000);
                         }
                       }}
                     >
                       {colIndex === 0 && (
                         <div
-                          className={`absolute top-0 left-1 text-sm ${
-                            (rowIndex + 1) % 2 === 0
-                              ? "text-white"
-                              : "text-green-700"
-                          }`}
+                          className={`absolute top-0 left-1 text-sm ${(rowIndex + 1) % 2 === 0
+                            ? "text-white"
+                            : "text-green-700"
+                            }`}
                         >
                           {square[1]}
                         </div>
@@ -180,6 +183,7 @@ export default function Playpage() {
               Change
             </button>
           </div>
+          <p className="text-red-50">Current Turn: {currentTurn === "w" ? "White" : "Black"}</p>
         </div>
       </div>
     </div>
