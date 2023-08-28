@@ -25,6 +25,16 @@ export default function Playpage() {
   //   }
   // }
 
+  const shouldHighlightSquare = (square: string) => {
+    return moves.some((move) => {
+      if (move.length === 3) {
+        return move.substring(1) === square;
+      } else {
+        return move === square;
+      }
+    });
+  };
+
   return (
     <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
       {/* Chessboard */}
@@ -42,12 +52,26 @@ export default function Playpage() {
                 <div key={colIndex} className="h-full w-full relative">
                   {piece ? (
                     <div
-                      className = {square === currentPosition ? "w-full h-full bg-[#BBCC44]" : "w-full h-full "}
+                      className={
+                        piece.square === currentPosition
+                          ? "w-full h-full bg-[#BBCC44]"
+                          : "w-full h-full "
+                      }
                       onClick={() => {
                         if (moves.length === 0) {
                           chess.load(fen);
-                          console.log(chess.fen());
-                          setMoves(chess.moves({ square: piece.square }));
+                          setMoves(
+                            chess.moves({
+                              square: piece.square,
+                              piece: piece.type,
+                            })
+                          );
+                          console.log(
+                            chess.moves({
+                              square: piece.square,
+                              piece: piece.type,
+                            })
+                          );
                           setCurrentPosition(piece.square);
                         } else {
                           setMoves([]);
@@ -63,7 +87,7 @@ export default function Playpage() {
                               : "text-white"
                           }`}
                         >
-                          {square[0]}
+                          {piece.square[0]}
                         </div>
                       )}
                       {colIndex === 0 && (
@@ -74,7 +98,7 @@ export default function Playpage() {
                               : "text-green-700"
                           }`}
                         >
-                          {square[1]}
+                          {piece.square[1]}
                         </div>
                       )}
                       <Image
@@ -87,10 +111,11 @@ export default function Playpage() {
                     </div>
                   ) : (
                     <div
-                      className={
-                        "w-full h-full " +
-                        (moves.includes(square) ? "bg-[#f4f680] border border-[#efe862]" : "")
-                      }
+                      className={`w-full h-full ${
+                        shouldHighlightSquare(square)
+                          ? "bg-[#f4f680] border border-[#efe862]"
+                          : ""
+                      }`}
                       onClick={() => {
                         if (moves.length > 0) {
                           chess.load(fen);
