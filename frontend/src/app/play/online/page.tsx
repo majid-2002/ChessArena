@@ -33,13 +33,12 @@ export default function PlayOnline() {
   };
 
   useEffect(() => {
-    if(play === "w"){
-      setBoardArray(chess.board())
-    }else{
-      setBoardArray(chess.board().reverse())
+    if (play === "w") {
+      setBoardArray(chess.board());
+    } else {
+      setBoardArray(chess.board().reverse());
     }
   }, [play]);
-   
 
   return (
     <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
