@@ -1,16 +1,16 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AiFillPlusSquare } from "react-icons/ai";
 import { Chess } from "chess.js";
 import { Play } from "@/app/components/Play";
 
 export default function PlayOnline() {
   const chess = new Chess();
+  const [play, setPlay] = useState<string>("w");
   const [boardArray, setBoardArray] = useState(chess.board());
   const [currentPosition, setCurrentPosition] = useState<string>("");
   const [moves, setMoves] = useState<string[]>([]);
   const [fen, setNewfen] = useState(chess.fen());
-  const [play, setPlay] = useState<string>("w");
   const [currentTurn, setCurrentTurn] = useState<string>(chess.turn());
 
   // let board = [];
@@ -32,6 +32,15 @@ export default function PlayOnline() {
     });
   };
 
+  useEffect(() => {
+    if(play === "w"){
+      setBoardArray(chess.board())
+    }else{
+      setBoardArray(chess.board().reverse())
+    }
+  }, [play]);
+   
+
   return (
     <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
       {/* Chessboard */}
@@ -48,6 +57,7 @@ export default function PlayOnline() {
         setBoardArray={setBoardArray}
         shouldHighlightSquare={shouldHighlightSquare}
         playComputer={false}
+        play={play}
       />
 
       <div className="w-full h-5/6 sm:w-1/2 md:w-1/3 bg-neutral-800  rounded-md">
@@ -74,6 +84,7 @@ export default function PlayOnline() {
               className="text-shadow-lg p-2 w-full"
               onClick={() => {
                 setPlay(play === "w" ? "b" : "w");
+                console.log(play);
               }}
             >
               Change

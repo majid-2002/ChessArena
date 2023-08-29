@@ -48,6 +48,7 @@ export default function PlayComputer() {
         setBoardArray={setBoardArray}
         shouldHighlightSquare={shouldHighlightSquare}
         playComputer={true}
+        play={play}
       />
 
       <div className="w-full h-5/6 sm:w-1/2 md:w-1/3 bg-neutral-800  rounded-md">
