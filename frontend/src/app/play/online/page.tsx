@@ -22,15 +22,6 @@ export default function PlayOnline() {
   //     board.push(horizontalAxis[j] + verticalAxis[i]);
   //   }
   // }
-  const shouldHighlightSquare = (square: string) => {
-    return moves.some((move) => {
-      if (move.length === 3) {
-        return move.substring(1) === square;
-      } else {
-        return move === square;
-      }
-    });
-  };
 
   useEffect(() => {
     if (play === "w") {
@@ -54,7 +45,6 @@ export default function PlayOnline() {
         setNewfen={setNewfen}
         setCurrentTurn={setCurrentTurn}
         setBoardArray={setBoardArray}
-        shouldHighlightSquare={shouldHighlightSquare}
         playComputer={false}
         play={play}
       />
@@ -83,7 +73,6 @@ export default function PlayOnline() {
               className="text-shadow-lg p-2 w-full"
               onClick={() => {
                 setPlay(play === "w" ? "b" : "w");
-                console.log(play);
               }}
             >
               Change

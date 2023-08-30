@@ -15,7 +15,6 @@ interface PlayProps {
   setNewfen: (fen: string) => void;
   setCurrentTurn: (currentTurn: string) => void;
   setBoardArray: (boardArray: any) => void;
-  shouldHighlightSquare: (square: string) => boolean;
   play: string;
 }
 
@@ -30,7 +29,6 @@ export const Play = ({
   setNewfen,
   setCurrentTurn,
   setBoardArray,
-  shouldHighlightSquare,
   playComputer,
   play,
 }: PlayProps) => {
@@ -38,6 +36,23 @@ export const Play = ({
   //   console.log(chess.moves());
   //   console.log(boardArray);
   // });
+
+  const shouldHighlightSquare = (square: string) => {
+    return moves.some((move) => {
+      if (move.length === 3) {
+        return move.substring(1) === square;
+      } else if (move.length === 4) {
+        return move.substring(2) === square;
+      } else {
+        return move === square;
+      }
+    });
+  };
+
+  useEffect(() => {
+    console.log(fen);
+    console.log(boardArray);
+  }, []);
 
   return (
     <div className="relative w-full sm:w-1/2 justify-center flex items-center">
@@ -59,6 +74,8 @@ export const Play = ({
                         className={
                           piece.square === currentPosition
                             ? "w-full h-full bg-[#BBCC44]"
+                            : shouldHighlightSquare(piece.square)
+                            ? "w-full h-full bg-[#f6ab80] border border-[#f6ab80]"
                             : "w-full h-full "
                         }
                         onClick={() => {
@@ -70,6 +87,18 @@ export const Play = ({
                                 piece: piece.type,
                               })
                             );
+                            setCurrentPosition(piece.square);
+                            console.log("works");
+                            if (moves.includes(piece.square.length == 4)) {
+                              chess.move({
+                                from: currentPosition,
+                                to: piece.square,
+                              });
+                              setNewfen(chess.fen());
+                              setCurrentTurn(chess.turn());
+                              setBoardArray(chess.board());
+                              setMoves([]);
+                            }
                             setCurrentPosition(piece.square);
                           } else {
                             setMoves([]);

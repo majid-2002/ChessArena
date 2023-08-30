@@ -22,15 +22,7 @@ export default function PlayComputer() {
   //     board.push(horizontalAxis[j] + verticalAxis[i]);
   //   }
   // }
-  const shouldHighlightSquare = (square: string) => {
-    return moves.some((move) => {
-      if (move.length === 3) {
-        return move.substring(1) === square;
-      } else {
-        return move === square;
-      }
-    });
-  };
+
 
   return (
     <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
@@ -46,7 +38,6 @@ export default function PlayComputer() {
         setNewfen={setNewfen}
         setCurrentTurn={setCurrentTurn}
         setBoardArray={setBoardArray}
-        shouldHighlightSquare={shouldHighlightSquare}
         playComputer={true}
         play={play}
       />
