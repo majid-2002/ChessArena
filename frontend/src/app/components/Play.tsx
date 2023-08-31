@@ -88,17 +88,17 @@ export const Play = ({
                               })
                             );
                             setCurrentPosition(piece.square);
-                            console.log("works");
-                            if (moves.includes(piece.square.length == 4)) {
-                              chess.move({
-                                from: currentPosition,
-                                to: piece.square,
-                              });
-                              setNewfen(chess.fen());
-                              setCurrentTurn(chess.turn());
-                              setBoardArray(chess.board());
-                              setMoves([]);
-                            }
+                          } else if (shouldHighlightSquare(piece.square)) {
+                            // Check if the clicked square is a valid move (including capturing)
+                            chess.load(fen);
+                            chess.move({
+                              from: currentPosition,
+                              to: piece.square,
+                            });
+                            setNewfen(chess.fen());
+                            setCurrentTurn(chess.turn());
+                            setBoardArray(chess.board());
+                            setMoves([]);
                             setCurrentPosition(piece.square);
                           } else {
                             setMoves([]);
