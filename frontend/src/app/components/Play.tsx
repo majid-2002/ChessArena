@@ -39,20 +39,12 @@ export const Play = ({
 
   const shouldHighlightSquare = (square: string) => {
     return moves.some((move) => {
-      if (move.length === 3) {
-        return move.substring(1) === square;
-      } else if (move.length === 4) {
-        return move.substring(2) === square;
-      } else {
-        return move === square;
+      console.log(move);
+      if (move.to === square) {
+        return true;
       }
     });
   };
-
-  useEffect(() => {
-    console.log(fen);
-    console.log(boardArray);
-  }, []);
 
   return (
     <div className="relative w-full sm:w-1/2 justify-center flex items-center">
@@ -85,6 +77,7 @@ export const Play = ({
                               chess.moves({
                                 square: piece.square,
                                 piece: piece.type,
+                                verbose: true,
                               })
                             );
                             setCurrentPosition(piece.square);
