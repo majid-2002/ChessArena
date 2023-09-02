@@ -74,12 +74,19 @@ export const Play = ({
                         );
                         setCurrentPosition(piece.square);
                       } else if (shouldHighlightSquare(piece.square)) {
-                        // Check if the clicked square is a valid move (including capturing)
                         chess.load(fen);
-                        chess.move({
-                          from: currentPosition,
-                          to: piece.square,
-                        });
+
+                        if (moves.some((move) => move.to === piece.square)) {
+                          chess.move({
+                            from: currentPosition,
+                            to: piece.square,
+                          });
+                        } else {
+                          console.log("works here ");
+                          setMoves([]);
+                          return;
+                        }
+
                         setNewfen(chess.fen());
                         setCurrentTurn(chess.turn());
                         setBoardArray(
@@ -90,9 +97,6 @@ export const Play = ({
                         if (playComputer) {
                           makeComputerMove();
                         }
-                      } else {
-                        setMoves([]);
-                        setCurrentPosition("");
                       }
                     }}
                   >
@@ -136,7 +140,19 @@ export const Play = ({
                     onClick={() => {
                       if (moves.length > 0) {
                         chess.load(fen);
-                        chess.move({ from: currentPosition, to: square });
+
+                        //error handling
+                        if (moves.some((move) => move.to === square)) {
+                          chess.move({
+                            from: currentPosition,
+                            to: square,
+                          });
+                        } else {
+                          console.log("expected");
+                          setMoves([]);
+                          return;
+                        }
+
                         setNewfen(chess.fen());
                         setCurrentTurn(chess.turn());
                         setBoardArray(
