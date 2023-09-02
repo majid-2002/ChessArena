@@ -28,6 +28,19 @@ export const Play = ({
   const shouldHighlightSquare = (square: Square) =>
     moves.some((move) => move.to === square);
 
+  const makeComputerMove = () => {
+    setTimeout(() => {
+      if (chess.turn() === "b") {
+        const moves = chess.moves();
+        const move = moves[Math.floor(Math.random() * moves.length)];
+        chess.move(move);
+      }
+      setNewfen(chess.fen());
+      setCurrentTurn(chess.turn());
+      setBoardArray(chess.board());
+    }, 1000);
+  };
+
   return (
     <div className="relative w-full sm:w-1/2 justify-center flex items-center">
       <Image src={chessboard} alt="Chessboard" className="w-full h-full" />
@@ -74,6 +87,9 @@ export const Play = ({
                         );
                         setMoves([]);
                         setCurrentPosition(piece.square);
+                        if (playComputer) {
+                          makeComputerMove();
+                        }
                       } else {
                         setMoves([]);
                         setCurrentPosition("");
@@ -127,22 +143,8 @@ export const Play = ({
                           play == "w" ? chess.board() : chess.board().reverse()
                         );
                         setMoves([]);
-
-                        {
-                          playComputer &&
-                            setTimeout(() => {
-                              if (chess.turn() === "b") {
-                                const moves = chess.moves();
-                                const move =
-                                  moves[
-                                    Math.floor(Math.random() * moves.length)
-                                  ];
-                                chess.move(move);
-                              }
-                              setNewfen(chess.fen());
-                              setCurrentTurn(chess.turn());
-                              setBoardArray(chess.board());
-                            }, 1000);
+                        if (playComputer) {
+                          makeComputerMove();
                         }
                       }
                     }}

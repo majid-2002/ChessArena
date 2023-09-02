@@ -7,9 +7,6 @@ import { Play } from "@/app/components/Play";
 export default function PlayComputer() {
   const chess = new Chess();
   const [boardArray, setBoardArray] = useState(chess.board());
-  const [currentPosition, setCurrentPosition] = useState<string>("");
-  const [moves, setMoves] = useState<string[]>([]);
-  const [fen, setNewfen] = useState(chess.fen());
   const [play, setPlay] = useState<string>("w");
   const [currentTurn, setCurrentTurn] = useState<string>(chess.turn());
 
@@ -23,19 +20,12 @@ export default function PlayComputer() {
   //   }
   // }
 
-
   return (
     <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
       {/* Chessboard */}
       <Play
         boardArray={boardArray}
-        currentPosition={currentPosition}
-        moves={moves}
-        setMoves={setMoves}
-        setCurrentPosition={setCurrentPosition}
-        fen={fen}
         chess={chess}
-        setNewfen={setNewfen}
         setCurrentTurn={setCurrentTurn}
         setBoardArray={setBoardArray}
         playComputer={true}
@@ -66,6 +56,7 @@ export default function PlayComputer() {
               className="text-shadow-lg p-2 w-full"
               onClick={() => {
                 setPlay(play === "w" ? "b" : "w");
+                
               }}
             >
               Change
