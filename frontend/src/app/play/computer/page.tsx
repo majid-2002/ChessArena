@@ -1,35 +1,37 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AiFillPlusSquare } from "react-icons/ai";
 import { Chess } from "chess.js";
 import { Play } from "@/app/components/Play";
 
-export default function PlayComputer() {
+export default function PlayOnline() {
   const chess = new Chess();
-  const [boardArray, setBoardArray] = useState(chess.board());
   const [play, setPlay] = useState<string>("w");
   const [currentTurn, setCurrentTurn] = useState<string>(chess.turn());
+  const [boardArray, setBoardArray] = useState(chess.board());
+  const [fen, setNewfen] = useState(chess.fen());
 
-  // let board = [];
-  // const verticalAxis = ["1", "2", "3", "4", "5", "6", "7", "8"];
-  // const horizontalAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
-  // for (let i = verticalAxis.length - 1; i >= 0; i--) {
-  //   for (let j = 0; j < horizontalAxis.length; j++) {
-  //     board.push(horizontalAxis[j] + verticalAxis[i]);
-  //   }
-  // }
+  useEffect(() => {
+    if (play === "w") {
+      setBoardArray(chess.board());
+    } else {
+      setBoardArray(chess.board().reverse());
+    }
+  }, [play]);
 
   return (
     <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
       {/* Chessboard */}
       <Play
-        boardArray={boardArray}
         chess={chess}
         setCurrentTurn={setCurrentTurn}
+        boardArray={boardArray}
         setBoardArray={setBoardArray}
         playComputer={true}
         play={play}
+        fen={fen}
+        setNewfen={setNewfen}
       />
 
       <div className="w-full h-5/6 sm:w-1/2 md:w-1/3 bg-neutral-800  rounded-md">
@@ -56,7 +58,6 @@ export default function PlayComputer() {
               className="text-shadow-lg p-2 w-full"
               onClick={() => {
                 setPlay(play === "w" ? "b" : "w");
-                
               }}
             >
               Change

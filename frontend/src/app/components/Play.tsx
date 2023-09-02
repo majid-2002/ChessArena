@@ -11,6 +11,8 @@ interface PlayProps {
   setCurrentTurn: (currentTurn: string) => void;
   setBoardArray: (boardArray: any) => void;
   play: string;
+  fen: string;
+  setNewfen: (fen: string) => void;
 }
 
 export const Play = ({
@@ -20,10 +22,11 @@ export const Play = ({
   setBoardArray,
   playComputer,
   play,
+  fen,
+  setNewfen,
 }: PlayProps) => {
   const [currentPosition, setCurrentPosition] = useState<string>("");
   const [moves, setMoves] = useState<Move[]>([]);
-  const [fen, setNewfen] = useState(chess.fen());
 
   const shouldHighlightSquare = (square: Square) =>
     moves.some((move) => move.to === square);
@@ -37,7 +40,7 @@ export const Play = ({
       }
       setNewfen(chess.fen());
       setCurrentTurn(chess.turn());
-      setBoardArray(chess.board());
+      setBoardArray(play == "w" ? chess.board() : chess.board().reverse());
     }, 1000);
   };
 

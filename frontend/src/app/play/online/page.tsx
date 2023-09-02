@@ -9,7 +9,7 @@ export default function PlayOnline() {
   const [play, setPlay] = useState<string>("w");
   const [currentTurn, setCurrentTurn] = useState<string>(chess.turn());
   const [boardArray, setBoardArray] = useState(chess.board());
-
+  const [fen, setNewfen] = useState(chess.fen());
 
   useEffect(() => {
     if (play === "w") {
@@ -23,12 +23,14 @@ export default function PlayOnline() {
     <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
       {/* Chessboard */}
       <Play
-        chess={chess}  
+        chess={chess}
         setCurrentTurn={setCurrentTurn}
         boardArray={boardArray}
         setBoardArray={setBoardArray}
         playComputer={false}
         play={play}
+        fen={fen}
+        setNewfen={setNewfen}
       />
 
       <div className="w-full h-5/6 sm:w-1/2 md:w-1/3 bg-neutral-800  rounded-md">
