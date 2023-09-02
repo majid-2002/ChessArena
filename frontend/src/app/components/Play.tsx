@@ -78,18 +78,15 @@ export const Play = ({
                         setCurrentPosition(piece.square);
                       } else if (shouldHighlightSquare(piece.square)) {
                         chess.load(fen);
-
                         if (moves.some((move) => move.to === piece.square)) {
                           chess.move({
                             from: currentPosition,
                             to: piece.square,
                           });
                         } else {
-                          console.log("works here ");
                           setMoves([]);
                           return;
                         }
-
                         setNewfen(chess.fen());
                         setCurrentTurn(chess.turn());
                         setBoardArray(
@@ -100,6 +97,9 @@ export const Play = ({
                         if (playComputer) {
                           makeComputerMove();
                         }
+                      } else {
+                        setMoves([]);
+                        setCurrentPosition("");
                       }
                     }}
                   >
@@ -143,15 +143,12 @@ export const Play = ({
                     onClick={() => {
                       if (moves.length > 0) {
                         chess.load(fen);
-
-                        //error handling
                         if (moves.some((move) => move.to === square)) {
                           chess.move({
                             from: currentPosition,
                             to: square,
                           });
                         } else {
-                          console.log("expected");
                           setMoves([]);
                           return;
                         }
