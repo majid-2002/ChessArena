@@ -7,21 +7,9 @@ import { Play } from "@/app/components/Play";
 export default function PlayOnline() {
   const chess = new Chess();
   const [play, setPlay] = useState<string>("w");
-  const [boardArray, setBoardArray] = useState(chess.board());
-  const [currentPosition, setCurrentPosition] = useState<string>("");
-  const [moves, setMoves] = useState<string[]>([]);
-  const [fen, setNewfen] = useState(chess.fen());
   const [currentTurn, setCurrentTurn] = useState<string>(chess.turn());
+  const [boardArray, setBoardArray] = useState(chess.board());
 
-  // let board = [];
-  // const verticalAxis = ["1", "2", "3", "4", "5", "6", "7", "8"];
-  // const horizontalAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
-
-  // for (let i = verticalAxis.length - 1; i >= 0; i--) {
-  //   for (let j = 0; j < horizontalAxis.length; j++) {
-  //     board.push(horizontalAxis[j] + verticalAxis[i]);
-  //   }
-  // }
 
   useEffect(() => {
     if (play === "w") {
@@ -35,15 +23,9 @@ export default function PlayOnline() {
     <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
       {/* Chessboard */}
       <Play
-        boardArray={boardArray}
-        currentPosition={currentPosition}
-        moves={moves}
-        setMoves={setMoves}
-        setCurrentPosition={setCurrentPosition}
-        fen={fen}
-        chess={chess}
-        setNewfen={setNewfen}
+        chess={chess}  
         setCurrentTurn={setCurrentTurn}
+        boardArray={boardArray}
         setBoardArray={setBoardArray}
         playComputer={false}
         play={play}
