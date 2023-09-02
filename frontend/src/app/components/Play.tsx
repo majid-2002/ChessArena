@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import chessboard from "@/../public/images/board.png";
 import { pieceImageData } from "@/utils/pieces";
 import Image from "next/image";
-import { Square, Move } from "chess.js";
+import { Square, Move, Piece } from "chess.js";
 
 interface PlayProps {
   boardArray: any;
@@ -27,6 +27,11 @@ export const Play = ({
 }: PlayProps) => {
   const [currentPosition, setCurrentPosition] = useState<string>("");
   const [moves, setMoves] = useState<Move[]>([]);
+
+
+  useEffect(() => {
+    console.log(boardArray);
+  }, [boardArray]);
 
   const shouldHighlightSquare = (square: Square) =>
     moves.some((move) => move.to === square);

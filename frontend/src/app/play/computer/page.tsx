@@ -11,6 +11,7 @@ export default function PlayOnline() {
   const [boardArray, setBoardArray] = useState(chess.board());
   const [fen, setNewfen] = useState(chess.fen());
 
+  
   useEffect(() => {
     chess.load(fen);
     if (play === "w") {
@@ -18,6 +19,7 @@ export default function PlayOnline() {
     } else {
       setBoardArray(chess.board().reverse());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [play]);
 
   return (
