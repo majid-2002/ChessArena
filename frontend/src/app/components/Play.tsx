@@ -67,39 +67,40 @@ export const Play = ({
                     }
                     onClick={() => {
                       if (moves.length === 0) {
-                        chess.load(fen);
-                        setMoves(
-                          chess.moves({
-                            square: piece.square,
-                            piece: piece.type,
-                            verbose: true,
-                          })
-                        );
-                        setCurrentPosition(piece.square);
+                            chess.load(fen);
+                            setMoves(
+                              chess.moves({
+                                square: piece.square,
+                                piece: piece.type,
+                                verbose: true,
+                              })
+                            );
+                            setCurrentPosition(piece.square);
                       } else if (shouldHighlightSquare(piece.square)) {
-                        chess.load(fen);
-                        if (moves.some((move) => move.to === piece.square)) {
-                          chess.move({
-                            from: currentPosition,
-                            to: piece.square,
-                          });
-                        } else {
-                          setMoves([]);
-                          return;
-                        }
-                        setNewfen(chess.fen());
-                        setCurrentTurn(chess.turn());
-                        setBoardArray(
-                          play == "w" ? chess.board() : chess.board().reverse()
-                        );
-                        setMoves([]);
-                        setCurrentPosition(piece.square);
-                        if (playComputer) {
-                          makeComputerMove();
-                        }
+                            chess.load(fen);
+                            if (moves.some((move) => move.to === piece.square)) {
+                              chess.move({
+                                from: currentPosition,
+                                to: piece.square,
+                              });
+                            } else {
+                              setMoves([]);
+                              return;
+                            }
+                            setMoves([]);
+                            setNewfen(chess.fen());
+                            setCurrentTurn(chess.turn());
+                            setBoardArray(
+                              play == "w" ? chess.board() : chess.board().reverse()
+                            );
+                            setMoves([]);
+                            setCurrentPosition(piece.square);
+                            if (playComputer) {
+                              makeComputerMove();
+                            }
                       } else {
-                        setMoves([]);
-                        setCurrentPosition("");
+                            setMoves([]);
+                            setCurrentPosition("");
                       }
                     }}
                   >
@@ -152,7 +153,7 @@ export const Play = ({
                           setMoves([]);
                           return;
                         }
-
+                        setMoves([]);
                         setNewfen(chess.fen());
                         setCurrentTurn(chess.turn());
                         setBoardArray(

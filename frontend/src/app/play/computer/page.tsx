@@ -11,8 +11,8 @@ export default function PlayOnline() {
   const [boardArray, setBoardArray] = useState(chess.board());
   const [fen, setNewfen] = useState(chess.fen());
 
-
   useEffect(() => {
+    chess.load(fen);
     if (play === "w") {
       setBoardArray(chess.board());
     } else {
