@@ -27,7 +27,13 @@ export const Play = ({
 }: PlayProps) => {
   const [currentPosition, setCurrentPosition] = useState<string>("");
   const [moves, setMoves] = useState<Move[]>([]);
-
+  // const [movedSquares, setMovedSquares] = useState<{
+  //   from: string | null;
+  //   to: string | null;
+  // }>({
+  //   from: null,
+  //   to: null,
+  // });
 
   useEffect(() => {
     console.log(boardArray);
@@ -68,44 +74,44 @@ export const Play = ({
                         ? "w-full h-full bg-[#BBCC44]"
                         : shouldHighlightSquare(piece.square)
                         ? "w-full h-full bg-[#f6ab80] border border-[#f6ab80]"
-                        : "w-full h-full "
+                        : "w-full h-full"
                     }
                     onClick={() => {
                       if (moves.length === 0) {
-                            chess.load(fen);
-                            setMoves(
-                              chess.moves({
-                                square: piece.square,
-                                piece: piece.type,
-                                verbose: true,
-                              })
-                            );
-                            setCurrentPosition(piece.square);
+                        chess.load(fen);
+                        setMoves(
+                          chess.moves({
+                            square: piece.square,
+                            piece: piece.type,
+                            verbose: true,
+                          })
+                        );
+                        setCurrentPosition(piece.square);
                       } else if (shouldHighlightSquare(piece.square)) {
-                            chess.load(fen);
-                            if (moves.some((move) => move.to === piece.square)) {
-                              chess.move({
-                                from: currentPosition,
-                                to: piece.square,
-                              });
-                            } else {
-                              setMoves([]);
-                              return;
-                            }
-                            setMoves([]);
-                            setNewfen(chess.fen());
-                            setCurrentTurn(chess.turn());
-                            setBoardArray(
-                              play == "w" ? chess.board() : chess.board().reverse()
-                            );
-                            setMoves([]);
-                            setCurrentPosition(piece.square);
-                            if (playComputer) {
-                              makeComputerMove();
-                            }
+                        chess.load(fen);
+                        if (moves.some((move) => move.to === piece.square)) {
+                          chess.move({
+                            from: currentPosition,
+                            to: piece.square,
+                          });
+                        } else {
+                          setMoves([]);
+                          return;
+                        }
+                        setMoves([]);
+                        setNewfen(chess.fen());
+                        setCurrentTurn(chess.turn());
+                        setBoardArray(
+                          play == "w" ? chess.board() : chess.board().reverse()
+                        );
+                        setMoves([]);
+                        setCurrentPosition(piece.square);
+                        if (playComputer) {
+                          makeComputerMove();
+                        }
                       } else {
-                            setMoves([]);
-                            setCurrentPosition("");
+                        setMoves([]);
+                        setCurrentPosition("");
                       }
                     }}
                   >
