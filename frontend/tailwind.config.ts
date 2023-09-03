@@ -32,6 +32,7 @@ const config: Config = {
         { values: theme("textShadow") }
       );
     }),
+    require("daisyui"),
   ],
 };
 export default config;

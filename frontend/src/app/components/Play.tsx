@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import chessboard from "@/../public/images/board.png";
 import { pieceImageData } from "@/utils/pieces";
 import Image from "next/image";
-import { Square, Move, Piece } from "chess.js";
+import { Square, Move } from "chess.js";
 
 interface PlayProps {
   boardArray: any;
@@ -35,12 +35,16 @@ export const Play = ({
   //   to: null,
   // });
 
-  useEffect(() => {
-    console.log(boardArray);
-  }, [boardArray]);
+  const isGameOver = chess.isGameOver();
 
   const shouldHighlightSquare = (square: Square) =>
     moves.some((move) => move.to === square);
+
+  // useEffect(() => {
+  //   if (!isGameOver) {
+  //     window.my_modal_3.showModal();
+  //   }
+  // }, [isGameOver]);
 
   const makeComputerMove = () => {
     setTimeout(() => {
