@@ -6,7 +6,8 @@ import { pieceImageData } from "@/utils/pieces";
 import Image from "next/image";
 import { Square, Move, Color } from "chess.js";
 import { connectSocket } from "@/utils/socket";
-import { Socket } from "socket.io-client";
+import { Socket, io } from "socket.io-client";
+import { set } from "firebase/database";
 
 interface PlayProps {
   boardArray: any;
@@ -69,18 +70,24 @@ export const Play = ({
   //   }
   // }, [isGameOver]);
 
-  const socket = connectSocket();
+  const [socket, setSocket] = useState<any>(null);
 
   useEffect(() => {
+    setSocket(connectSocket());
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
     socket.on("connect", () => {
       console.log("Connected to the server");
     });
 
     socket.on("gameId", (gameId: string) => {
+      console.log("dehwdihewiu")
       setGameId(gameId);
-      console.log(gameId); 
+      console.log(gameId);
     });
-  },[]);
+  }, [socket]);
 
   const shouldHighlightSquare = (square: Square) =>
     moves.some((move) => move.to === square);
@@ -119,9 +126,8 @@ export const Play = ({
       <div className="grid grid-cols-8 grid-rows-8 absolute top-0 w-full ">
         {boardArray.map((row: any, rowIndex: number) => {
           return row.map((piece: any, colIndex: number) => {
-            const square = `${String.fromCharCode(97 + colIndex)}${
-              change === "w" ? 8 - rowIndex : rowIndex + 1
-            }`;
+            const square = `${String.fromCharCode(97 + colIndex)}${change === "w" ? 8 - rowIndex : rowIndex + 1
+              }`;
 
             return (
               <div key={colIndex} className="h-full w-full relative">
@@ -131,8 +137,8 @@ export const Play = ({
                       piece.square === currentPosition
                         ? "w-full h-full bg-[#BBCC44]"
                         : shouldHighlightSquare(piece.square)
-                        ? "w-full h-full bg-[#f6ab80] border border-[#f6ab80]"
-                        : "w-full h-full"
+                          ? "w-full h-full bg-[#f6ab80] border border-[#f6ab80]"
+                          : "w-full h-full"
                     }
                     onClick={() => {
                       if (moves.length === 0) {
@@ -177,22 +183,20 @@ export const Play = ({
                   >
                     {rowIndex === 7 && (
                       <div
-                        className={`absolute bottom-0 right-1 text-sm ${
-                          (colIndex + 1) % 2 === 0
-                            ? "text-green-700"
-                            : "text-white"
-                        }`}
+                        className={`absolute bottom-0 right-1 text-sm ${(colIndex + 1) % 2 === 0
+                          ? "text-green-700"
+                          : "text-white"
+                          }`}
                       >
                         {piece.square[0]}
                       </div>
                     )}
                     {colIndex === 0 && (
                       <div
-                        className={`absolute top-0 left-1 text-sm ${
-                          (rowIndex + 1) % 2 === 0
-                            ? "text-white"
-                            : "text-green-700"
-                        }`}
+                        className={`absolute top-0 left-1 text-sm ${(rowIndex + 1) % 2 === 0
+                          ? "text-white"
+                          : "text-green-700"
+                          }`}
                       >
                         {piece.square[1]}
                       </div>
@@ -207,11 +211,10 @@ export const Play = ({
                   </div>
                 ) : (
                   <div
-                    className={`w-full h-full ${
-                      shouldHighlightSquare(square as Square)
-                        ? "bg-[#f4f680] border border-[#efe862]"
-                        : ""
-                    }`}
+                    className={`w-full h-full ${shouldHighlightSquare(square as Square)
+                      ? "bg-[#f4f680] border border-[#efe862]"
+                      : ""
+                      }`}
                     onClick={() => {
                       if (moves.length > 0) {
                         chess.load(fen);
@@ -241,11 +244,10 @@ export const Play = ({
                   >
                     {colIndex === 0 && (
                       <div
-                        className={`absolute top-0 left-1 text-sm ${
-                          (rowIndex + 1) % 2 === 0
-                            ? "text-white"
-                            : "text-green-700"
-                        }`}
+                        className={`absolute top-0 left-1 text-sm ${(rowIndex + 1) % 2 === 0
+                          ? "text-white"
+                          : "text-green-700"
+                          }`}
                       >
                         {square[1]}
                       </div>

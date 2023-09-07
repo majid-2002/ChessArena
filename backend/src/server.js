@@ -43,6 +43,7 @@ export function setupSocketIO(server) {
   io.on("connection", (socket) => {
     console.log("a user connected");
     const gameId = generateUniqueGameId();
+    console.log(gameId)
     socket.emit("gameId", gameId);
   });
 }
