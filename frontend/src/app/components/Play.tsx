@@ -1,16 +1,21 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import chessboard from "@/../public/images/board.png";
 import { pieceImageData } from "@/utils/pieces";
 import Image from "next/image";
-import { Square, Move } from "chess.js";
+import { Square, Move, Color } from "chess.js";
+import { connectSocket } from "@/utils/socket";
+import { Socket } from "socket.io-client";
 
 interface PlayProps {
   boardArray: any;
   chess: any;
   playComputer: boolean;
   setCurrentTurn: (currentTurn: string) => void;
+  currentTurn: string;
   setBoardArray: (boardArray: any) => void;
-  play: string;
+  change: string;
   fen: string;
   setNewfen: (fen: string) => void;
 }
@@ -19,14 +24,35 @@ export const Play = ({
   boardArray,
   chess,
   setCurrentTurn,
+  currentTurn,
   setBoardArray,
   playComputer,
-  play,
+  change,
   fen,
   setNewfen,
 }: PlayProps) => {
   const [currentPosition, setCurrentPosition] = useState<string>("");
   const [moves, setMoves] = useState<Move[]>([]);
+  const [gameId, setGameId] = useState<string>("");
+  // const [players, setPlayers] = useState<{
+  //   player1: {
+  //     playerId: any;
+  //     color: Color;
+  //   };
+  //   player2: {
+  //     playerId: any;
+  //     color: Color;
+  //   };
+  // }>({
+  //   player1: {
+  //     playerId: "",
+  //     color: "w",
+  //   },
+  //   player2: {
+  //     playerId: "",
+  //     color: "b",
+  //   },
+  // });
   // const [movedSquares, setMovedSquares] = useState<{
   //   from: string | null;
   //   to: string | null;
@@ -35,16 +61,29 @@ export const Play = ({
   //   to: null,
   // });
 
-  const isGameOver = chess.isGameOver();
-
-  const shouldHighlightSquare = (square: Square) =>
-    moves.some((move) => move.to === square);
+  // const isGameOver = chess.isGameOver();
 
   // useEffect(() => {
   //   if (!isGameOver) {
   //     window.my_modal_3.showModal();
   //   }
   // }, [isGameOver]);
+
+  const socket = connectSocket();
+
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("Connected to the server");
+    });
+
+    socket.on("gameId", (gameId: string) => {
+      setGameId(gameId);
+      console.log(gameId); 
+    });
+  },[]);
+
+  const shouldHighlightSquare = (square: Square) =>
+    moves.some((move) => move.to === square);
 
   const makeComputerMove = () => {
     setTimeout(() => {
@@ -55,9 +94,24 @@ export const Play = ({
       }
       setNewfen(chess.fen());
       setCurrentTurn(chess.turn());
-      setBoardArray(play == "w" ? chess.board() : chess.board().reverse());
+      setBoardArray(change == "w" ? chess.board() : chess.board().reverse());
     }, 1000);
   };
+
+  // const isPlayerMove = (): boolean => {
+  //   let isCurrentPlayer = false;
+
+  //   Object.keys(players).forEach((playerKey) => {
+  //     const player = players[playerKey];
+  //     console.log(player);
+
+  //     if (player.playerId === socket.id && player.color === currentTurn) {
+  //       isCurrentPlayer = true;
+  //     }
+  //   });
+
+  //   return isCurrentPlayer;
+  // };
 
   return (
     <div className="relative w-full sm:w-1/2 justify-center flex items-center">
@@ -66,7 +120,7 @@ export const Play = ({
         {boardArray.map((row: any, rowIndex: number) => {
           return row.map((piece: any, colIndex: number) => {
             const square = `${String.fromCharCode(97 + colIndex)}${
-              play === "w" ? 8 - rowIndex : rowIndex + 1
+              change === "w" ? 8 - rowIndex : rowIndex + 1
             }`;
 
             return (
@@ -106,7 +160,9 @@ export const Play = ({
                         setNewfen(chess.fen());
                         setCurrentTurn(chess.turn());
                         setBoardArray(
-                          play == "w" ? chess.board() : chess.board().reverse()
+                          change == "w"
+                            ? chess.board()
+                            : chess.board().reverse()
                         );
                         setMoves([]);
                         setCurrentPosition(piece.square);
@@ -172,7 +228,9 @@ export const Play = ({
                         setNewfen(chess.fen());
                         setCurrentTurn(chess.turn());
                         setBoardArray(
-                          play == "w" ? chess.board() : chess.board().reverse()
+                          change == "w"
+                            ? chess.board()
+                            : chess.board().reverse()
                         );
                         setMoves([]);
                         if (playComputer) {

@@ -1,24 +1,24 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { AiFillPlusSquare } from "react-icons/ai";
-import { Chess } from "chess.js";
 import { Play } from "@/app/components/Play";
+import { Chess } from "chess.js";
 
 export default function PlayOnline() {
   const chess = new Chess();
-  const [play, setPlay] = useState<string>("w");
+  const [change, setChange] = useState<string>("w");
   const [currentTurn, setCurrentTurn] = useState<string>(chess.turn());
   const [boardArray, setBoardArray] = useState(chess.board());
   const [fen, setNewfen] = useState(chess.fen());
 
   useEffect(() => {
     chess.load(fen);
-    if (play === "w") {
+    if (change === "w") {
       setBoardArray(chess.board());
     } else {
       setBoardArray(chess.board().reverse());
     }
-  }, [play]);
+  }, [change]);
 
   return (
     <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
@@ -26,10 +26,11 @@ export default function PlayOnline() {
       <Play
         chess={chess}
         setCurrentTurn={setCurrentTurn}
+        currentTurn={currentTurn}
         boardArray={boardArray}
         setBoardArray={setBoardArray}
         playComputer={false}
-        play={play}
+        change={change}
         fen={fen}
         setNewfen={setNewfen}
       />
@@ -57,7 +58,7 @@ export default function PlayOnline() {
             <button
               className="text-shadow-lg p-2 w-full"
               onClick={() => {
-                setPlay(play === "w" ? "b" : "w");
+                setChange(change === "w" ? "b" : "w");
               }}
             >
               Change
