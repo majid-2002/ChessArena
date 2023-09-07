@@ -70,7 +70,7 @@ export const Play = ({
   //   }
   // }, [isGameOver]);
 
-  const [socket, setSocket] = useState<any>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
     setSocket(connectSocket());
@@ -83,9 +83,15 @@ export const Play = ({
     });
 
     socket.on("gameId", (gameId: string) => {
-      console.log("dehwdihewiu")
       setGameId(gameId);
       console.log(gameId);
+    });
+
+    socket.on("fen", (fen: string) => {
+      console.log("fen changed");
+      setNewfen(fen);
+      chess.load(fen);
+      setBoardArray(chess.board());
     });
   }, [socket]);
 
@@ -119,6 +125,10 @@ export const Play = ({
 
   //   return isCurrentPlayer;
   // };
+
+  useEffect(() => {
+    socket?.emit("fen", fen);
+  }, [fen])
 
   return (
     <div className="relative w-full sm:w-1/2 justify-center flex items-center">

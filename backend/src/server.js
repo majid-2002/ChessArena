@@ -40,11 +40,20 @@ export function setupSocketIO(server) {
     },
   });
 
+  let players = [];
+
   io.on("connection", (socket) => {
-    console.log("a user connected");
+    players.push(socket.id);
+    console.log("a user connected" + socket.id);
     const gameId = generateUniqueGameId();
     console.log(gameId)
     socket.emit("gameId", gameId);
+    socket.on("fen", (fen) => {
+      console.log(fen)
+      for (const player of players) {
+        socket.to(player).emit("fen", fen);
+      }
+    })
   });
 }
 
