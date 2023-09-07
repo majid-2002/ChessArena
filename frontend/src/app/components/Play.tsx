@@ -79,12 +79,24 @@ export const Play = ({
   useEffect(() => {
     if (!socket) return;
     socket.on("connect", () => {
+      var userId = localStorage.getItem("userId");
+      console.log("userId", userId)
+      if (!userId) {
+        userId = self.crypto.randomUUID()
+        localStorage.setItem("userId", userId);
+      }
+      socket.emit("join", userId);
       console.log("Connected to the server");
     });
 
-    socket.on("gameId", (gameId: string) => {
-      setGameId(gameId);
-      console.log(gameId);
+    socket.on("game", (game: any) => {
+      console.log(game)
+      if(game.color === "w"){
+        setBoardArray(chess.board())
+      }
+      else{
+        setBoardArray(chess.board().reverse())
+      }
     });
 
     socket.on("fen", (fen: string) => {

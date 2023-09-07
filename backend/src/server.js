@@ -40,42 +40,68 @@ export function setupSocketIO(server) {
     },
   });
 
-  let players = [];
+  var players = [];
+  var games = [];
 
   io.on("connection", (socket) => {
-    players.push(socket.id);
     console.log("a user connected" + socket.id);
-    const gameId = generateUniqueGameId();
-    console.log(gameId)
-    socket.emit("gameId", gameId);
+
     socket.on("fen", (fen) => {
       console.log(fen)
       for (const player of players) {
         socket.to(player).emit("fen", fen);
       }
     })
+
+    socket.on("join", (userId) => {
+      for(const player of players){
+        if(player.userId === userId){
+          player.socketId = socket.id;
+        }
+      }
+
+      if (!players.includes({userId: userId, socketId: socket.id})) {
+        players.push({ userId: userId, socketId: socket.id });
+      }
+
+      console.log("players: ", players);
+
+      if (players.length > 1) {
+        const gameId = generateUniqueGameId();
+        const game = {
+          gameId: gameId,
+          player1: { id: players.reverse().pop().socketId, color: "b" },
+          player2: { id: players.reverse().pop().socketId, color: "w" },
+        };
+        games.push(game);
+        console.log("sending game to players: " + game.player1.id + " " + game.player2.id)
+        socket.to(game.player1.id).emit("game", { color: game.player1.color, game: game});
+        socket.to(game.player2.id).emit("game", { color: game.player2.color, game: game});
+        console.log(games)
+      }
+    })
   });
 }
 
 // // GAME LOGIC
-function startNewGame(lobby, socket) {
-  console.log("starting new game");
-  console.log(lobby);
+// function startNewGame(lobby, socket) {
+//   console.log("starting new game");
+//   console.log(lobby);
 
-  const gameId = generateUniqueGameId();
+//   const gameId = generateUniqueGameId();
 
-  const player1 = {
-    playerId: lobby[0],
-    color: "w",
-  };
-  const player2 = {
-    playerId: lobby[1],
-    color: "b",
-  };
+//   const player1 = {
+//     playerId: lobby[0],
+//     color: "w",
+//   };
+//   const player2 = {
+//     playerId: lobby[1],
+//     color: "b",
+//   };
 
 
-  socket.emit("gameId", gameId, player1, player2);
-}
+//   socket.emit("gameId", gameId, player1, player2);
+// }
 
 function generateUniqueGameId() {
   const timestamp = new Date().getTime().toString(); // Get current timestamp
