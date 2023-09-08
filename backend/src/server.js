@@ -5,6 +5,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import morgan from "morgan";
 import { Server } from "socket.io";
+import playerModel from "./models/playerModel.js";
+import gameModel from "./models/gameModel.js";
 
 //* CONFIGURATIONS
 const app = express();
@@ -40,76 +42,86 @@ export function setupSocketIO(server) {
     },
   });
 
-  var players = [];
-  var games = [];
+  let players = [];
 
   io.on("connection", (socket) => {
-    console.log("a user connected" + socket.id);
+    socket.on("join", async (data) => {
+      try {
+        const { playerId, isGuest } = data;
+        let player = await playerModel.findOne({ playerId }).exec();
 
-    socket.on("fen", (fen) => {
-      console.log(fen)
-      for (const player of players) {
-        socket.to(player).emit("fen", fen);
-      }
-    })
-
-    socket.on("join", (userId) => {
-      for(const player of players){
-        if(player.userId === userId){
+        if (!player) {
+          const newPlayer = new playerModel({
+            playerId: playerId,
+            isGuest: isGuest,
+            socketId: socket.id,
+          });
+          player = await newPlayer.save();
+        } else {
           player.socketId = socket.id;
+          player = await player.save();
         }
+
+        matchmakePlayer(player);
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    const matchmakePlayer = async (player) => {
+      if (players.find((p) => p._id === player._id)) {
+        return;
+      } else {
+        players.push(player);
       }
 
-      if (!players.includes({userId: userId, socketId: socket.id})) {
-        players.push({ userId: userId, socketId: socket.id });
-      }
+      if (players.length >= 2) {
+        // Find an existing game with these players
+        const existingGame = await gameModel.findOne({
+          players: { $all: players.map((p) => p._id) },
+        });
 
-      console.log("players: ", players);
+        if (existingGame) {
+          // If an existing game is found, use its room ID
+          const roomId = existingGame.roomId;
+          socket.join(roomId);
+          console.log("Sending game to players in room ", roomId);
 
-      if (players.length > 1) {
-        const gameId = generateUniqueGameId();
-        const game = {
-          gameId: gameId,
-          player1: { id: players.reverse().pop().socketId, color: "b" },
-          player2: { id: players.reverse().pop().socketId, color: "w" },
-        };
-        games.push(game);
-        console.log("sending game to players: " + game.player1.id + " " + game.player2.id)
-        socket.to(game.player1.id).emit("game", { color: game.player1.color, game: game});
-        socket.to(game.player2.id).emit("game", { color: game.player2.color, game: game});
-        console.log(games)
+          players.forEach((p, index) => {
+            io.to(p.socketId).emit("game", {
+              roomId: roomId,
+              color: index === 0 ? "w" : "b",
+            });
+          });
+        } else {
+          // If no existing game is found, create a new room
+          const roomId = generateUniqueRoomId();
+          const newGame = new gameModel({
+            roomId: roomId,
+            players: players.map((p) => p._id),
+          });
+
+          await newGame.save();
+          socket.join(roomId);
+          console.log("Sending game to players in room ", roomId);
+
+          players.forEach((p, index) => {
+            io.to(p.socketId).emit("game", {
+              roomId: roomId,
+              color: index === 0 ? "w" : "b",
+            });
+          });
+        }
+
+        // Clear the players array
+        players.length = 0;
       }
-    })
+    };
   });
 }
 
-// // GAME LOGIC
-// function startNewGame(lobby, socket) {
-//   console.log("starting new game");
-//   console.log(lobby);
-
-//   const gameId = generateUniqueGameId();
-
-//   const player1 = {
-//     playerId: lobby[0],
-//     color: "w",
-//   };
-//   const player2 = {
-//     playerId: lobby[1],
-//     color: "b",
-//   };
-
-
-//   socket.emit("gameId", gameId, player1, player2);
-// }
-
-function generateUniqueGameId() {
-  const timestamp = new Date().getTime().toString(); // Get current timestamp
-  const randomString = Math.random().toString(36).substring(2, 8); // Generate a random string
-
-  // Combine timestamp and random string to create a unique ID
-  const uniqueId = timestamp + randomString;
-  return uniqueId;
+function generateUniqueRoomId() {
+  return Math.random().toString(36).substring(2, 8);
 }
 
 app.get("/", (req, res) => {
