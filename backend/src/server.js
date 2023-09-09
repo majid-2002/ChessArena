@@ -77,38 +77,47 @@ export function setupSocketIO(server) {
 
       if (players.length >= 2) {
         // Find an existing game with these players
-        const existingGame = await gameModel.findOne({
-          players: { $all: players.map((p) => p._id) },
-        });
+        const existingGame = await gameModel
+          .findOne({
+            players: { $all: players.map((p) => p._id) },
+          })
+          .populate("players")
+          .exec();
 
         if (existingGame) {
-          // If an existing game is found, use its room ID
-          const roomId = existingGame.roomId;
-          socket.join(roomId);
-          console.log("Sending game to players in room ", roomId);
-
-          players.forEach((p, index) => {
+          existingGame.players.forEach((p, index) => {
             io.to(p.socketId).emit("game", {
-              roomId: roomId,
-              color: index === 0 ? "w" : "b",
+              roomId: existingGame.roomId,
+              color:
+                index === 0
+                  ? existingGame.player1Color
+                  : existingGame.player2Color,
             });
           });
         } else {
-          // If no existing game is found, create a new room
           const roomId = generateUniqueRoomId();
+
           const newGame = new gameModel({
             roomId: roomId,
             players: players.map((p) => p._id),
+            player1Color: "w",
+            player2Color: "b",
           });
 
           await newGame.save();
           socket.join(roomId);
-          console.log("Sending game to players in room ", roomId);
 
-          players.forEach((p, index) => {
+          const game = await gameModel
+            .findOne({
+              roomId: roomId,
+            })
+            .populate("players")
+            .exec();
+
+          game.players.forEach((p, index) => {
             io.to(p.socketId).emit("game", {
               roomId: roomId,
-              color: index === 0 ? "w" : "b",
+              color: index === 0 ? game.player1Color : game.player2Color,
             });
           });
         }

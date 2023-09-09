@@ -15,6 +15,16 @@ const gameSchema = new mongoose.Schema(
         required: true,
       },
     ],
+    player1Color: {
+      type: String,
+      required: true,
+      enum: ["w", "b"],
+    },
+    player2Color: {
+      type: String,
+      required: true,
+      enum: ["w", "b"],
+    },
   },
   {
     timestamps: true,
