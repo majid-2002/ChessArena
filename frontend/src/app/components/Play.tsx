@@ -7,7 +7,7 @@ import Image from "next/image";
 import { Square, Move, Color } from "chess.js";
 import { connectSocket } from "@/utils/socket";
 import { Socket, io } from "socket.io-client";
-import { set } from "firebase/database";
+import { data } from "autoprefixer";
 
 interface PlayProps {
   boardArray: any;
@@ -17,6 +17,7 @@ interface PlayProps {
   currentTurn: string;
   setBoardArray: (boardArray: any) => void;
   change: string;
+  setChange: (change: string) => void;
   fen: string;
   setNewfen: (fen: string) => void;
 }
@@ -29,83 +30,40 @@ export const Play = ({
   setBoardArray,
   playComputer,
   change,
+  setChange,
   fen,
   setNewfen,
 }: PlayProps) => {
   const [currentPosition, setCurrentPosition] = useState<string>("");
   const [moves, setMoves] = useState<Move[]>([]);
-  const [gameId, setGameId] = useState<string>("");
-  // const [players, setPlayers] = useState<{
-  //   player1: {
-  //     playerId: any;
-  //     color: Color;
-  //   };
-  //   player2: {
-  //     playerId: any;
-  //     color: Color;
-  //   };
-  // }>({
-  //   player1: {
-  //     playerId: "",
-  //     color: "w",
-  //   },
-  //   player2: {
-  //     playerId: "",
-  //     color: "b",
-  //   },
-  // });
-  // const [movedSquares, setMovedSquares] = useState<{
-  //   from: string | null;
-  //   to: string | null;
-  // }>({
-  //   from: null,
-  //   to: null,
-  // });
-
-  // const isGameOver = chess.isGameOver();
-
-  // useEffect(() => {
-  //   if (!isGameOver) {
-  //     window.my_modal_3.showModal();
-  //   }
-  // }, [isGameOver]);
-
+  const [roomId, setRoomId] = useState<string>("");
+  const [playerColor, setPlayerColor] = useState<string>("");
   const [socket, setSocket] = useState<Socket | null>(null);
 
-  useEffect(() => {
-    setSocket(connectSocket());
-  }, []);
+  // useEffect(() => {
+  //   setSocket(connectSocket());
+  // }, []);
 
-  useEffect(() => {
-    if (!socket) return;
-    socket.on("connect", () => {
-      var userId = localStorage.getItem("userId");
-      console.log("userId", userId)
-      if (!userId) {
-        userId = self.crypto.randomUUID()
-        localStorage.setItem("userId", userId);
-      }
-      socket.emit("join", userId);
-      console.log("Connected to the server");
-    });
+  // useEffect(() => {
+  //   if (!socket) return;
 
-    socket.on("game", (game: any) => {
-      console.log(game)
-      if(game.color === "w"){
-        setBoardArray(chess.board())
-      }
-      else{
-        setBoardArray(chess.board().reverse())
-      }
-    });
+  //   socket.on("game", (data) => {
+  //     setRoomId(data.roomId);
+  //     setPlayerColor(data.color);
+  //     setChange(data.color);
+  //   });
 
-    socket.on("fen", (fen: string) => {
-      console.log("fen changed");
-      setNewfen(fen);
-      chess.load(fen);
-      setBoardArray(chess.board());
-    });
-  }, [socket]);
+  //   // socket.on("fen", (fen: string) => {
+  //   //   console.log("fen changed");
+  //   //   setNewfen(fen);
+  //   //   chess.load(fen);
+  //   //   setBoardArray(chess.board());
+  //   // });
+
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, [socket]);
 
   const shouldHighlightSquare = (square: Square) =>
     moves.some((move) => move.to === square);
@@ -123,24 +81,9 @@ export const Play = ({
     }, 1000);
   };
 
-  // const isPlayerMove = (): boolean => {
-  //   let isCurrentPlayer = false;
-
-  //   Object.keys(players).forEach((playerKey) => {
-  //     const player = players[playerKey];
-  //     console.log(player);
-
-  //     if (player.playerId === socket.id && player.color === currentTurn) {
-  //       isCurrentPlayer = true;
-  //     }
-  //   });
-
-  //   return isCurrentPlayer;
-  // };
-
-  useEffect(() => {
-    socket?.emit("fen", fen);
-  }, [fen])
+  // useEffect(() => {
+  //   socket?.emit("fen", fen);
+  // }, [fen]);
 
   return (
     <div className="relative w-full sm:w-1/2 justify-center flex items-center">
@@ -148,8 +91,9 @@ export const Play = ({
       <div className="grid grid-cols-8 grid-rows-8 absolute top-0 w-full ">
         {boardArray.map((row: any, rowIndex: number) => {
           return row.map((piece: any, colIndex: number) => {
-            const square = `${String.fromCharCode(97 + colIndex)}${change === "w" ? 8 - rowIndex : rowIndex + 1
-              }`;
+            const square = `${String.fromCharCode(97 + colIndex)}${
+              change === "w" ? 8 - rowIndex : rowIndex + 1
+            }`;
 
             return (
               <div key={colIndex} className="h-full w-full relative">
@@ -159,8 +103,8 @@ export const Play = ({
                       piece.square === currentPosition
                         ? "w-full h-full bg-[#BBCC44]"
                         : shouldHighlightSquare(piece.square)
-                          ? "w-full h-full bg-[#f6ab80] border border-[#f6ab80]"
-                          : "w-full h-full"
+                        ? "w-full h-full bg-[#f6ab80] border border-[#f6ab80]"
+                        : "w-full h-full"
                     }
                     onClick={() => {
                       if (moves.length === 0) {
@@ -205,20 +149,22 @@ export const Play = ({
                   >
                     {rowIndex === 7 && (
                       <div
-                        className={`absolute bottom-0 right-1 text-sm ${(colIndex + 1) % 2 === 0
-                          ? "text-green-700"
-                          : "text-white"
-                          }`}
+                        className={`absolute bottom-0 right-1 text-sm ${
+                          (colIndex + 1) % 2 === 0
+                            ? "text-green-700"
+                            : "text-white"
+                        }`}
                       >
                         {piece.square[0]}
                       </div>
                     )}
                     {colIndex === 0 && (
                       <div
-                        className={`absolute top-0 left-1 text-sm ${(rowIndex + 1) % 2 === 0
-                          ? "text-white"
-                          : "text-green-700"
-                          }`}
+                        className={`absolute top-0 left-1 text-sm ${
+                          (rowIndex + 1) % 2 === 0
+                            ? "text-white"
+                            : "text-green-700"
+                        }`}
                       >
                         {piece.square[1]}
                       </div>
@@ -233,10 +179,11 @@ export const Play = ({
                   </div>
                 ) : (
                   <div
-                    className={`w-full h-full ${shouldHighlightSquare(square as Square)
-                      ? "bg-[#f4f680] border border-[#efe862]"
-                      : ""
-                      }`}
+                    className={`w-full h-full ${
+                      shouldHighlightSquare(square as Square)
+                        ? "bg-[#f4f680] border border-[#efe862]"
+                        : ""
+                    }`}
                     onClick={() => {
                       if (moves.length > 0) {
                         chess.load(fen);
@@ -266,10 +213,11 @@ export const Play = ({
                   >
                     {colIndex === 0 && (
                       <div
-                        className={`absolute top-0 left-1 text-sm ${(rowIndex + 1) % 2 === 0
-                          ? "text-white"
-                          : "text-green-700"
-                          }`}
+                        className={`absolute top-0 left-1 text-sm ${
+                          (rowIndex + 1) % 2 === 0
+                            ? "text-white"
+                            : "text-green-700"
+                        }`}
                       >
                         {square[1]}
                       </div>

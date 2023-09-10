@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { AiFillPlusSquare } from "react-icons/ai";
 import { Play } from "@/app/components/Play";
+import { connectSocket } from "@/utils/socket";
 import { Chess } from "chess.js";
 
 export default function PlayOnline() {
@@ -20,6 +21,48 @@ export default function PlayOnline() {
     }
   }, [change]);
 
+  // useEffect(() => {
+  //   const socket = connectSocket();
+  //   socket.on("connect", () => {
+  //     console.log("connected");
+  //   });
+
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, []);
+
+  const handlePlayClick = () => {
+    const socket = connectSocket();
+    const isGuest = true;
+
+    socket.on("connect", () => {
+      console.log("connected to server");
+      let playerId = localStorage.getItem("playerId");
+
+      if (!playerId) {
+        socket.emit("newPlayer", isGuest, (id: string) => {
+          localStorage.setItem("playerId", id);
+          playerId = id;
+
+          socket.emit("joinGame", playerId, (cb: any) => {
+            console.log(cb);
+          });
+        });
+      } else {
+        socket.emit("joinGame", playerId, (cb: any) => {
+          console.log(cb);
+        });
+      }
+
+      socket.on("gameStart", (gameData) => {
+        console.log("works here ");
+        console.log("client : ");
+        console.log(gameData);
+      });
+    });
+  };
+
   return (
     <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
       {/* Chessboard */}
@@ -31,6 +74,7 @@ export default function PlayOnline() {
         setBoardArray={setBoardArray}
         playComputer={false}
         change={change}
+        setChange={setChange}
         fen={fen}
         setNewfen={setNewfen}
       />
@@ -52,7 +96,12 @@ export default function PlayOnline() {
         </div>
         <div className=" flex-col flex p-5 space-y-5">
           <div className="bg-lime-300/70 flex items-center justify-center rounded-xl text-center shadow-xl sm:text-2xl text-white font-bold border border-b-8 border-green-900/70 rounded-b-2xl">
-            <button className="text-shadow-lg p-2 w-full">Play</button>
+            <button
+              className="text-shadow-lg p-2 w-full"
+              onClick={handlePlayClick}
+            >
+              Play
+            </button>
           </div>
           <div className="bg-neutral-600/70 flex items-center justify-center rounded-xl text-center shadow-xl sm:text-2xl text-white font-bold border border-b-8 border-neutral-800/70 rounded-b-2xl">
             <button
