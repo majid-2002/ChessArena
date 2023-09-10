@@ -4,6 +4,7 @@ import { AiFillPlusSquare } from "react-icons/ai";
 import { Play } from "@/app/components/Play";
 import { connectSocket } from "@/utils/socket";
 import { Chess } from "chess.js";
+import { Socket } from "socket.io-client";
 
 export default function PlayOnline() {
   const chess = new Chess();
@@ -14,52 +15,48 @@ export default function PlayOnline() {
 
   useEffect(() => {
     chess.load(fen);
-    if (change === "w") {
-      setBoardArray(chess.board());
-    } else {
-      setBoardArray(chess.board().reverse());
-    }
+    setBoardArray(change === "w" ? chess.board() : chess.board().reverse());
   }, [change]);
 
-  // useEffect(() => {
-  //   const socket = connectSocket();
-  //   socket.on("connect", () => {
-  //     console.log("connected");
-  //   });
+  useEffect(() => {
+    const socket = connectSocket();
+    socket.on("connect", () => {
+      console.log("connected to server");
+      handleSocketActions(socket);
+    });
+  }, []);
 
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // }, []);
+  const handleSocketActions = (socket : Socket) => {
+    let playerId = localStorage.getItem("playerId");
+
+    if (!playerId) {
+      socket.emit("newPlayer", true, (id: string) => {
+        localStorage.setItem("playerId", id);
+        playerId = id;
+        joinGame(socket, playerId);
+      });
+    } else {
+      joinGame(socket, playerId);
+    }
+
+    socket.on("gameStart", (gameData) => {
+      console.log("works here in the client side ");
+      console.log("client : ");
+      console.log(gameData);
+    });
+  };
+
+  const joinGame = (socket: Socket, playerId: string) => {
+    socket.emit("joinGame", playerId, (cb: any) => {
+      console.log(cb);
+    });
+  };
 
   const handlePlayClick = () => {
     const socket = connectSocket();
-    const isGuest = true;
-
     socket.on("connect", () => {
       console.log("connected to server");
-      let playerId = localStorage.getItem("playerId");
-
-      if (!playerId) {
-        socket.emit("newPlayer", isGuest, (id: string) => {
-          localStorage.setItem("playerId", id);
-          playerId = id;
-
-          socket.emit("joinGame", playerId, (cb: any) => {
-            console.log(cb);
-          });
-        });
-      } else {
-        socket.emit("joinGame", playerId, (cb: any) => {
-          console.log(cb);
-        });
-      }
-
-      socket.on("gameStart", (gameData) => {
-        console.log("works here ");
-        console.log("client : ");
-        console.log(gameData);
-      });
+      handleSocketActions(socket);
     });
   };
 
