@@ -3,60 +3,58 @@ import React, { useEffect, useState } from "react";
 import { AiFillPlusSquare } from "react-icons/ai";
 import { Play } from "@/app/components/Play";
 import { connectSocket } from "@/utils/socket";
-import { Chess } from "chess.js";
+import { Chess, Color } from "chess.js";
 import { Socket } from "socket.io-client";
 
 export default function PlayOnline() {
   const chess = new Chess();
-  const [change, setChange] = useState<string>("w");
-  const [currentTurn, setCurrentTurn] = useState<string>(chess.turn());
+  const [change, setChange] = useState<Color>("w");
+  const [currentTurn, setCurrentTurn] = useState<Color>(chess.turn());
   const [boardArray, setBoardArray] = useState(chess.board());
   const [fen, setNewfen] = useState(chess.fen());
+  const [playerColor, setPlayerColor] = useState<Color | null>(null);
 
   useEffect(() => {
     chess.load(fen);
+    if (playerColor) setChange(playerColor);
     setBoardArray(change === "w" ? chess.board() : chess.board().reverse());
-  }, [change]);
+  }, [change, playerColor, setNewfen]);
+
+  const socket = connectSocket();
 
   useEffect(() => {
-    const socket = connectSocket();
     socket.on("connect", () => {
       console.log("connected to server");
       handleSocketActions(socket);
     });
   }, []);
 
-  const handleSocketActions = (socket : Socket) => {
-    let playerId = localStorage.getItem("playerId");
+  const handleSocketActions = (socket: Socket) => {
+    let roomId = localStorage.getItem("roomId");
+    if (!roomId || !playerColor) {
+      let playerId = localStorage.getItem("playerId");
 
-    if (!playerId) {
-      socket.emit("newPlayer", true, (id: string) => {
-        localStorage.setItem("playerId", id);
-        playerId = id;
+      if (!playerId) {
+        socket.emit("newPlayer", true, (id: string) => {
+          localStorage.setItem("playerId", id);
+          playerId = id;
+          joinGame(socket, playerId);
+        });
+      } else {
         joinGame(socket, playerId);
-      });
-    } else {
-      joinGame(socket, playerId);
-    }
+      }
 
-    socket.on("gameStart", (gameData) => {
-      console.log("works here in the client side ");
-      console.log("client : ");
-      console.log(gameData);
-    });
+      socket.on("gameStart", (gameData) => {
+        setPlayerColor(gameData.color);
+        setNewfen(gameData.fen);
+        localStorage.setItem("roomId", gameData.roomId);
+      });
+    }
   };
 
   const joinGame = (socket: Socket, playerId: string) => {
-    socket.emit("joinGame", playerId, (cb: any) => {
+    socket.emit("joinGame", playerId, fen, (cb: any) => {
       console.log(cb);
-    });
-  };
-
-  const handlePlayClick = () => {
-    const socket = connectSocket();
-    socket.on("connect", () => {
-      console.log("connected to server");
-      handleSocketActions(socket);
     });
   };
 
@@ -74,6 +72,9 @@ export default function PlayOnline() {
         setChange={setChange}
         fen={fen}
         setNewfen={setNewfen}
+        playerColor={playerColor}
+        setPlayerColor={setPlayerColor}
+        socket={socket}
       />
 
       <div className="w-full h-5/6 sm:w-1/2 md:w-1/3 bg-neutral-800  rounded-md">
@@ -93,12 +94,7 @@ export default function PlayOnline() {
         </div>
         <div className=" flex-col flex p-5 space-y-5">
           <div className="bg-lime-300/70 flex items-center justify-center rounded-xl text-center shadow-xl sm:text-2xl text-white font-bold border border-b-8 border-green-900/70 rounded-b-2xl">
-            <button
-              className="text-shadow-lg p-2 w-full"
-              onClick={handlePlayClick}
-            >
-              Play
-            </button>
+            <button className="text-shadow-lg p-2 w-full">Play</button>
           </div>
           <div className="bg-neutral-600/70 flex items-center justify-center rounded-xl text-center shadow-xl sm:text-2xl text-white font-bold border border-b-8 border-neutral-800/70 rounded-b-2xl">
             <button

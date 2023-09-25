@@ -48,7 +48,6 @@ export function setupSocketIO(server) {
     console.log("a user connected \n\n");
 
     socket.on("newPlayer", async (isGuest, cb) => {
-      console.log(socket.id);
       const player = new playerModel({
         isGuest: isGuest,
         socketId: socket.id,
@@ -57,21 +56,27 @@ export function setupSocketIO(server) {
       cb(newPlayer._id);
     });
 
-    socket.on("joinGame", async (playerId, cb) => {
-      if (!playerId) {
+    socket.on("joinGame", async (playerId, fen, cb) => {
+      const player = await playerModel.findById(playerId).exec();
+
+      if (!player) {
         return;
       }
 
-      let player = await playerModel.findById(playerId).exec();
-      console.log(player);
+      if (player) {
+        player.socketId = socket.id;
+        await player.save();
+      }
 
-      if (players.find((p) => p._id === player._id)) {
-        return;
-      } else {
+      if (!players.some((p) => p._id.toString() === player._id.toString())) {
         players.push(player);
       }
 
+      if (players.length == 0) players.push(player);
+
       if (players.length >= 2) {
+        console.log(players);
+
         const existingGame = await gameModel
           .findOne({
             players: { $all: players.map((p) => p._id) },
@@ -80,6 +85,9 @@ export function setupSocketIO(server) {
           .exec();
 
         if (!existingGame) {
+
+          console.log("works in not existing");
+
           const roomId = generateUniqueRoomId();
 
           const newGame = new gameModel({
@@ -87,6 +95,7 @@ export function setupSocketIO(server) {
             players: players.map((p) => p._id),
             player1Color: "w",
             player2Color: "b",
+            fen: fen,
           });
 
           await newGame.save();
@@ -99,27 +108,61 @@ export function setupSocketIO(server) {
             .exec();
 
           socket.join(roomId);
+
           game.players.forEach((p, index) => {
             io.to(p.socketId).emit("gameStart", {
               roomId: roomId,
+              fen: game.fen,
               color: index === 0 ? game.player1Color : game.player2Color,
             });
           });
+
+          players = [];
         } else {
+
+          console.log("works in existing");
+
           socket.join(existingGame.roomId);
           existingGame.players.forEach((p, index) => {
             io.to(p.socketId).emit("gameStart", {
               roomId: existingGame.roomId,
+              fen: existingGame.fen,
               color:
                 index === 0
                   ? existingGame.player1Color
                   : existingGame.player2Color,
             });
           });
+
+          players = [];
         }
       }
 
       cb("Joined Game Successfully");
+    });
+
+    socket.on("gameResume", async (roomId, fen) => {
+      let game = await gameModel
+        .findOne({
+          roomId: roomId,
+        })
+        .populate("players")
+        .exec();
+
+      if (!game) {
+        return;
+      }
+
+      game.fen = fen;
+      await game.save();
+
+      //send the fen to the players
+      game.players.forEach((p, index) => {
+        io.to(p.socketId).emit("gameUpdate", {
+          fen: fen,
+          color: index === 0 ? game.player1Color : game.player2Color,
+        });
+      });
     });
   });
 }

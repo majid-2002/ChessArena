@@ -25,6 +25,10 @@ const gameSchema = new mongoose.Schema(
       required: true,
       enum: ["w", "b"],
     },
+    fen: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,

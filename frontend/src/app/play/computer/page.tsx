@@ -1,26 +1,22 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { AiFillPlusSquare } from "react-icons/ai";
-import { Chess } from "chess.js";
 import { Play } from "@/app/components/Play";
+import { connectSocket } from "@/utils/socket";
+import { Chess } from "chess.js";
+import { Socket } from "socket.io-client";
 
 export default function PlayOnline() {
   const chess = new Chess();
-  const [play, setPlay] = useState<string>("w");
+  const [change, setChange] = useState<string>("w");
   const [currentTurn, setCurrentTurn] = useState<string>(chess.turn());
   const [boardArray, setBoardArray] = useState(chess.board());
   const [fen, setNewfen] = useState(chess.fen());
 
-  
   useEffect(() => {
     chess.load(fen);
-    if (play === "w") {
-      setBoardArray(chess.board());
-    } else {
-      setBoardArray(chess.board().reverse());
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [play]);
+    setBoardArray(change === "w" ? chess.board() : chess.board().reverse());
+  }, [change]);
 
   return (
     <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
@@ -28,10 +24,12 @@ export default function PlayOnline() {
       <Play
         chess={chess}
         setCurrentTurn={setCurrentTurn}
+        currentTurn={currentTurn}
         boardArray={boardArray}
         setBoardArray={setBoardArray}
         playComputer={true}
-        play={play}
+        change={change}
+        setChange={setChange}
         fen={fen}
         setNewfen={setNewfen}
       />
@@ -53,13 +51,17 @@ export default function PlayOnline() {
         </div>
         <div className=" flex-col flex p-5 space-y-5">
           <div className="bg-lime-300/70 flex items-center justify-center rounded-xl text-center shadow-xl sm:text-2xl text-white font-bold border border-b-8 border-green-900/70 rounded-b-2xl">
-            <button className="text-shadow-lg p-2 w-full">Play</button>
+            <button
+              className="text-shadow-lg p-2 w-full"
+            >
+              Play
+            </button>
           </div>
           <div className="bg-neutral-600/70 flex items-center justify-center rounded-xl text-center shadow-xl sm:text-2xl text-white font-bold border border-b-8 border-neutral-800/70 rounded-b-2xl">
             <button
               className="text-shadow-lg p-2 w-full"
               onClick={() => {
-                setPlay(play === "w" ? "b" : "w");
+                setChange(change === "w" ? "b" : "w");
               }}
             >
               Change

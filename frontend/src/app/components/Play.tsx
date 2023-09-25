@@ -5,21 +5,22 @@ import chessboard from "@/../public/images/board.png";
 import { pieceImageData } from "@/utils/pieces";
 import Image from "next/image";
 import { Square, Move, Color } from "chess.js";
-import { connectSocket } from "@/utils/socket";
-import { Socket, io } from "socket.io-client";
-import { data } from "autoprefixer";
+import { Socket } from "socket.io-client";
 
 interface PlayProps {
   boardArray: any;
+  setBoardArray: (boardArray: any) => void;
   chess: any;
   playComputer: boolean;
-  setCurrentTurn: (currentTurn: string) => void;
   currentTurn: string;
-  setBoardArray: (boardArray: any) => void;
+  setCurrentTurn: (currentTurn: Color) => void;
   change: string;
-  setChange: (change: string) => void;
+  setChange: (change: Color) => void;
   fen: string;
   setNewfen: (fen: string) => void;
+  playerColor: Color | null;
+  setPlayerColor: (playerColor: Color) => void;
+  socket: Socket;
 }
 
 export const Play = ({
@@ -33,37 +34,32 @@ export const Play = ({
   setChange,
   fen,
   setNewfen,
+  playerColor,
+  setPlayerColor,
+  socket,
 }: PlayProps) => {
   const [currentPosition, setCurrentPosition] = useState<string>("");
   const [moves, setMoves] = useState<Move[]>([]);
-  const [roomId, setRoomId] = useState<string>("");
-  const [playerColor, setPlayerColor] = useState<string>("");
-  const [socket, setSocket] = useState<Socket | null>(null);
 
-  // useEffect(() => {
-  //   setSocket(connectSocket());
-  // }, []);
+  useEffect(() => {
+    let roomId = localStorage.getItem("roomId");
 
-  // useEffect(() => {
-  //   if (!socket) return;
+    
+    if (roomId) {
+      console.log("works here");
+      socket.emit("gameResume", roomId, fen);
+    }
 
-  //   socket.on("game", (data) => {
-  //     setRoomId(data.roomId);
-  //     setPlayerColor(data.color);
-  //     setChange(data.color);
-  //   });
-
-  //   // socket.on("fen", (fen: string) => {
-  //   //   console.log("fen changed");
-  //   //   setNewfen(fen);
-  //   //   chess.load(fen);
-  //   //   setBoardArray(chess.board());
-  //   // });
-
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // }, [socket]);
+    socket.on("gameUpdate", (gameData) => {
+      console.log("Resuming game with data:");
+      console.log(gameData);
+      setNewfen(gameData.fen);
+      chess.load(fen);
+      setCurrentTurn(chess.turn());
+      setBoardArray(change == "w" ? chess.board() : chess.board().reverse());
+      setPlayerColor(gameData.color);
+    });
+  }, [fen, setNewfen]);
 
   const shouldHighlightSquare = (square: Square) =>
     moves.some((move) => move.to === square);
@@ -75,15 +71,12 @@ export const Play = ({
         const move = moves[Math.floor(Math.random() * moves.length)];
         chess.move(move);
       }
+      console.log(chess.pgn([{ newline_char: "\n" }]) + "\n");
       setNewfen(chess.fen());
       setCurrentTurn(chess.turn());
       setBoardArray(change == "w" ? chess.board() : chess.board().reverse());
     }, 1000);
   };
-
-  // useEffect(() => {
-  //   socket?.emit("fen", fen);
-  // }, [fen]);
 
   return (
     <div className="relative w-full sm:w-1/2 justify-center flex items-center">
@@ -107,6 +100,8 @@ export const Play = ({
                         : "w-full h-full"
                     }
                     onClick={() => {
+                      if (currentTurn !== playerColor) return;
+
                       if (moves.length === 0) {
                         chess.load(fen);
                         setMoves(
@@ -128,7 +123,6 @@ export const Play = ({
                           setMoves([]);
                           return;
                         }
-                        setMoves([]);
                         setNewfen(chess.fen());
                         setCurrentTurn(chess.turn());
                         setBoardArray(
@@ -185,6 +179,7 @@ export const Play = ({
                         : ""
                     }`}
                     onClick={() => {
+                      if (currentTurn !== playerColor) return;
                       if (moves.length > 0) {
                         chess.load(fen);
                         if (moves.some((move) => move.to === square)) {
