@@ -20,7 +20,6 @@ interface PlayProps {
   setNewfen: (fen: string) => void;
   playerColor: Color | null;
   setPlayerColor: (playerColor: Color) => void;
-  socket: Socket;
 }
 
 export const Play = ({
@@ -36,30 +35,29 @@ export const Play = ({
   setNewfen,
   playerColor,
   setPlayerColor,
-  socket,
 }: PlayProps) => {
   const [currentPosition, setCurrentPosition] = useState<string>("");
   const [moves, setMoves] = useState<Move[]>([]);
 
-  useEffect(() => {
-    let roomId = localStorage.getItem("roomId");
+  // useEffect(() => {
+  //   let roomId = localStorage.getItem("roomId");
+  //   let playerId = localStorage.getItem("playerId");
 
-    
-    if (roomId) {
-      console.log("works here");
-      socket.emit("gameResume", roomId, fen);
-    }
+  //   if (roomId && playerId) {
+  //     socket.emit("gameUpdate", roomId, fen, playerId);
+  //   }
 
-    socket.on("gameUpdate", (gameData) => {
-      console.log("Resuming game with data:");
-      console.log(gameData);
-      setNewfen(gameData.fen);
-      chess.load(fen);
-      setCurrentTurn(chess.turn());
-      setBoardArray(change == "w" ? chess.board() : chess.board().reverse());
-      setPlayerColor(gameData.color);
-    });
-  }, [fen, setNewfen]);
+  //   socket.on("gameUpdate", (gameData) => {
+  //     console.log("Resuming game with data:");
+  //     console.log(gameData);
+  //     setNewfen(gameData.fen);
+  //     chess.load(fen);
+  //     setCurrentTurn(chess.turn());
+  //     setBoardArray(change == "w" ? chess.board() : chess.board().reverse());
+  //     setPlayerColor(gameData.color);
+  //   });
+
+  // }, [fen, setNewfen]);
 
   const shouldHighlightSquare = (square: Square) =>
     moves.some((move) => move.to === square);

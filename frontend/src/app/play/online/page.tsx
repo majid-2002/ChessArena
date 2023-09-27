@@ -20,9 +20,8 @@ export default function PlayOnline() {
     setBoardArray(change === "w" ? chess.board() : chess.board().reverse());
   }, [change, playerColor, setNewfen]);
 
-  const socket = connectSocket();
-
   useEffect(() => {
+    const socket = connectSocket();
     socket.on("connect", () => {
       console.log("connected to server");
       handleSocketActions(socket);
@@ -31,29 +30,41 @@ export default function PlayOnline() {
 
   const handleSocketActions = (socket: Socket) => {
     let roomId = localStorage.getItem("roomId");
+    let playerId = localStorage.getItem("playerId");
     if (!roomId || !playerColor) {
-      let playerId = localStorage.getItem("playerId");
-
       if (!playerId) {
         socket.emit("newPlayer", true, (id: string) => {
           localStorage.setItem("playerId", id);
           playerId = id;
-          joinGame(socket, playerId);
+          createGame(socket, playerId);
         });
       } else {
-        joinGame(socket, playerId);
+        createGame(socket, playerId);
       }
-
-      socket.on("gameStart", (gameData) => {
-        setPlayerColor(gameData.color);
-        setNewfen(gameData.fen);
+      socket.on("gameCreate", (gameData) => {
         localStorage.setItem("roomId", gameData.roomId);
+      });
+    }
+
+    if (playerId && roomId) {
+      console.log("works here ");
+      socket.emit("joinRoom", roomId, (cb: string) => {
+        console.log(cb);
+      });
+      socket.on("gameUpdate", (gameData) => {
+        console.log("Resuming game with data:");
+        console.log(gameData);
+        setNewfen(gameData.fen);
+        chess.load(fen);
+        setCurrentTurn(chess.turn());
+        setBoardArray(change === "w" ? chess.board() : chess.board().reverse());
+        setPlayerColor(gameData.color);
       });
     }
   };
 
-  const joinGame = (socket: Socket, playerId: string) => {
-    socket.emit("joinGame", playerId, fen, (cb: any) => {
+  const createGame = (socket: Socket, playerId: string) => {
+    socket.emit("createGame", playerId, (cb: any) => {
       console.log(cb);
     });
   };
@@ -74,7 +85,6 @@ export default function PlayOnline() {
         setNewfen={setNewfen}
         playerColor={playerColor}
         setPlayerColor={setPlayerColor}
-        socket={socket}
       />
 
       <div className="w-full h-5/6 sm:w-1/2 md:w-1/3 bg-neutral-800  rounded-md">
