@@ -1,10 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, createContext } from "react";
 import { AiFillPlusSquare } from "react-icons/ai";
 import { Play } from "@/app/components/Play";
 import { connectSocket } from "@/utils/socket";
 import { Chess, Color } from "chess.js";
 import { Socket } from "socket.io-client";
+import { useSocket } from "@/app/context/socketContext";
 
 export default function PlayOnline() {
   const chess = new Chess();
@@ -13,6 +14,7 @@ export default function PlayOnline() {
   const [boardArray, setBoardArray] = useState(chess.board());
   const [fen, setNewfen] = useState(chess.fen());
   const [playerColor, setPlayerColor] = useState<Color | null>(null);
+  const [gameState, setGameState] = useState(false);
 
   useEffect(() => {
     chess.load(fen);
@@ -20,18 +22,41 @@ export default function PlayOnline() {
     setBoardArray(change === "w" ? chess.board() : chess.board().reverse());
   }, [change, playerColor, setNewfen]);
 
+  const socket = useSocket();
+
   useEffect(() => {
-    const socket = connectSocket();
+
+    console.log("onRelaod");
+
     socket.on("connect", () => {
       console.log("connected to server");
       handleSocketActions(socket);
     });
+
+    socket.on("disconnect", () => {
+      console.log("disconnected from server");
+    });
   }, []);
+
+  // useEffect(() => {
+  //   let roomId = localStorage.getItem("roomId");
+  //   let playerId = localStorage.getItem("playerId");
+
+  //   if (roomId && playerId && playerColor && gameState) {
+  //     socket.emit("gameUpdate", roomId, fen);
+  //   }
+  //   socket.on("gameUpdate", (gameData) => {
+  //     console.log(gameData);
+  //     setNewfen(gameData.fen);
+  //     setPlayerColor(gameData.color);
+  //   });
+  // }, [fen, setNewfen]);
 
   const handleSocketActions = (socket: Socket) => {
     let roomId = localStorage.getItem("roomId");
     let playerId = localStorage.getItem("playerId");
-    if (!roomId || !playerColor) {
+
+    if (!roomId || !playerId) {
       if (!playerId) {
         socket.emit("newPlayer", true, (id: string) => {
           localStorage.setItem("playerId", id);
@@ -46,32 +71,27 @@ export default function PlayOnline() {
       });
     }
 
-    if (playerId && roomId) {
-      console.log("works here ");
-      socket.emit("joinRoom", roomId, (cb: string) => {
+    if (playerId && roomId && !gameState) {
+      socket.emit("joinRoom", roomId, playerId, (cb: any) => {
         console.log(cb);
       });
-      socket.on("gameUpdate", (gameData) => {
-        console.log("Resuming game with data:");
-        console.log(gameData);
-        setNewfen(gameData.fen);
-        chess.load(fen);
-        setCurrentTurn(chess.turn());
-        setBoardArray(change === "w" ? chess.board() : chess.board().reverse());
-        setPlayerColor(gameData.color);
-      });
     }
+
+    socket.on("gameResume", (gameData) => {
+      setGameState(gameData.state);
+    });
   };
 
   const createGame = (socket: Socket, playerId: string) => {
-    socket.emit("createGame", playerId, (cb: any) => {
+    socket.emit("createGame", playerId, fen, (cb: any) => {
       console.log(cb);
     });
   };
 
   return (
-    <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
+    <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5 relative">
       {/* Chessboard */}
+
       <Play
         chess={chess}
         setCurrentTurn={setCurrentTurn}
@@ -85,6 +105,8 @@ export default function PlayOnline() {
         setNewfen={setNewfen}
         playerColor={playerColor}
         setPlayerColor={setPlayerColor}
+        gameState={gameState}
+        socket={socket as Socket}
       />
 
       <div className="w-full h-5/6 sm:w-1/2 md:w-1/3 bg-neutral-800  rounded-md">

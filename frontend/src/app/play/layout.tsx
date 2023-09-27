@@ -1,18 +1,19 @@
-import type { Metadata } from 'next'
+import type { Metadata } from "next";
+import { SocketProvider } from "../context/socketContext";
 
 export const metadata: Metadata = {
-  title: 'Play',
-  description: 'Play Chess Online',
-}
+  title: "Play",
+  description: "Play Chess Online",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
-}){
+  children: React.ReactNode;
+}) {
   return (
     <div>
-      {children}
+      <SocketProvider>{children}</SocketProvider>
     </div>
-  )
+  );
 }

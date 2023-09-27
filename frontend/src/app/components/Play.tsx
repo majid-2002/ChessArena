@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import chessboard from "@/../public/images/board.png";
 import { pieceImageData } from "@/utils/pieces";
 import Image from "next/image";
@@ -20,6 +20,8 @@ interface PlayProps {
   setNewfen: (fen: string) => void;
   playerColor: Color | null;
   setPlayerColor: (playerColor: Color) => void;
+  gameState: boolean;
+  socket: Socket;
 }
 
 export const Play = ({
@@ -35,6 +37,8 @@ export const Play = ({
   setNewfen,
   playerColor,
   setPlayerColor,
+  gameState,
+  socket,
 }: PlayProps) => {
   const [currentPosition, setCurrentPosition] = useState<string>("");
   const [moves, setMoves] = useState<Move[]>([]);
@@ -56,8 +60,12 @@ export const Play = ({
   //     setBoardArray(change == "w" ? chess.board() : chess.board().reverse());
   //     setPlayerColor(gameData.color);
   //   });
-
   // }, [fen, setNewfen]);
+
+  const updateMove = () => {
+    let roomId = localStorage.getItem("roomId");
+    socket.emit("updateMove", roomId, fen);
+  };
 
   const shouldHighlightSquare = (square: Square) =>
     moves.some((move) => move.to === square);
@@ -80,6 +88,13 @@ export const Play = ({
     <div className="relative w-full sm:w-1/2 justify-center flex items-center">
       <Image src={chessboard} alt="Chessboard" className="w-full h-full" />
       <div className="grid grid-cols-8 grid-rows-8 absolute top-0 w-full ">
+        {!gameState && (
+          <div className="h-full absolute bg-neutral-400 bg-opacity-30 w-full backdrop-blur-sm z-10 flex items-center justify-center">
+            <p className="text-3xl sm:text-4xl font-extrabold text-white text-center">
+              Waiting for other player . . .
+            </p>
+          </div>
+        )}
         {boardArray.map((row: any, rowIndex: number) => {
           return row.map((piece: any, colIndex: number) => {
             const square = `${String.fromCharCode(97 + colIndex)}${
