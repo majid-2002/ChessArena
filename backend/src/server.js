@@ -44,6 +44,7 @@ export function setupSocketIO(server) {
 
   let lobby = [];
   let selectedPlayers = [];
+  let playersInRoom = [];
 
   io.on("connection", (socket) => {
     console.log("a user connected \n\n");
@@ -57,7 +58,7 @@ export function setupSocketIO(server) {
       cb(newPlayer._id);
     });
 
-    socket.on("createGame", async (playerId, cb) => {
+    socket.on("createGame", async (playerId, fen, cb) => {
       const player = await playerModel.findById(playerId).exec();
 
       if (!player) {
@@ -75,6 +76,8 @@ export function setupSocketIO(server) {
 
       if (lobby.length == 0) lobby.push(player);
 
+      console.log(lobby);
+
       if (lobby.length >= 2) {
         selectedPlayers = lobby.splice(0, 2);
 
@@ -82,13 +85,14 @@ export function setupSocketIO(server) {
 
         for (const p of selectedPlayers) {
           let player = await playerModel.findById(p._id);
-          player.playerColor = ["w","b"][selectedPlayers.indexOf(p)];
+          player.playerColor = ["w", "b"][selectedPlayers.indexOf(p)];
           await player.save();
         }
 
         const newGame = new gameModel({
           roomId: roomId,
           players: selectedPlayers.map((p) => p._id),
+          fen: fen,
         });
 
         await newGame.save();
@@ -106,14 +110,49 @@ export function setupSocketIO(server) {
             color: p.playerColor,
           });
         });
-
-        cb("created Game Successfully");
       }
+
+      cb("created Game Successfully");
     });
 
-    socket.on("joinRoom", async (roomId, cb) => {
+    socket.on("joinRoom", async (roomId, playerId, cb) => {
       socket.join(roomId);
-      cb(`joined room ${roomId}`);
+
+      if (!playerId) return;
+
+      let game = await gameModel
+        .findOne({ roomId: roomId })
+        .populate("players");
+
+      if (playersInRoom.length == 0) playersInRoom.push(playerId);
+      else {
+        if (!playersInRoom.some((p) => p == playerId))
+          playersInRoom.push(playerId);
+      }
+
+      console.log(playersInRoom);
+
+      if (playersInRoom.length == 2) {
+        io.to(roomId).emit("gameResume", {
+          state: true,
+          color: game.players,
+        });
+      } else {
+        socket.emit("gameResume", {
+          state: false,
+        });
+      }
+
+      socket.on("disconnect", () => {
+        console.log("user disconnected");
+        socket.leave(roomId);
+        playersInRoom = playersInRoom.filter((p) => p != playerId);
+        socket.to(roomId).emit("gameResume", {
+          state: false,
+        });
+      });
+
+      cb(`joined room ${roomId}, players in room: ${playersInRoom.length}`);
     });
   });
 }
