@@ -42,7 +42,8 @@ export function setupSocketIO(server) {
     },
   });
 
-  let players = [];
+  let lobby = [];
+  let selectedPlayers = [];
 
   io.on("connection", (socket) => {
     console.log("a user connected \n\n");
@@ -56,7 +57,7 @@ export function setupSocketIO(server) {
       cb(newPlayer._id);
     });
 
-    socket.on("joinGame", async (playerId, fen, cb) => {
+    socket.on("createGame", async (playerId, cb) => {
       const player = await playerModel.findById(playerId).exec();
 
       if (!player) {
@@ -68,101 +69,51 @@ export function setupSocketIO(server) {
         await player.save();
       }
 
-      if (!players.some((p) => p._id.toString() === player._id.toString())) {
-        players.push(player);
+      if (!lobby.some((p) => p._id.toString() === player._id.toString())) {
+        lobby.push(player);
       }
 
-      if (players.length == 0) players.push(player);
+      if (lobby.length == 0) lobby.push(player);
 
-      if (players.length >= 2) {
-        console.log(players);
+      if (lobby.length >= 2) {
+        selectedPlayers = lobby.splice(0, 2);
 
-        const existingGame = await gameModel
+        const roomId = generateUniqueRoomId();
+
+        for (const p of selectedPlayers) {
+          let player = await playerModel.findById(p._id);
+          player.playerColor = ["w","b"][selectedPlayers.indexOf(p)];
+          await player.save();
+        }
+
+        const newGame = new gameModel({
+          roomId: roomId,
+          players: selectedPlayers.map((p) => p._id),
+        });
+
+        await newGame.save();
+
+        const game = await gameModel
           .findOne({
-            players: { $all: players.map((p) => p._id) },
+            roomId: roomId,
           })
           .populate("players")
           .exec();
 
-        if (!existingGame) {
-
-          console.log("works in not existing");
-
-          const roomId = generateUniqueRoomId();
-
-          const newGame = new gameModel({
+        game.players.forEach((p) => {
+          io.to(p.socketId).emit("gameCreate", {
             roomId: roomId,
-            players: players.map((p) => p._id),
-            player1Color: "w",
-            player2Color: "b",
-            fen: fen,
+            color: p.playerColor,
           });
+        });
 
-          await newGame.save();
-
-          const game = await gameModel
-            .findOne({
-              roomId: roomId,
-            })
-            .populate("players")
-            .exec();
-
-          socket.join(roomId);
-
-          game.players.forEach((p, index) => {
-            io.to(p.socketId).emit("gameStart", {
-              roomId: roomId,
-              fen: game.fen,
-              color: index === 0 ? game.player1Color : game.player2Color,
-            });
-          });
-
-          players = [];
-        } else {
-
-          console.log("works in existing");
-
-          socket.join(existingGame.roomId);
-          existingGame.players.forEach((p, index) => {
-            io.to(p.socketId).emit("gameStart", {
-              roomId: existingGame.roomId,
-              fen: existingGame.fen,
-              color:
-                index === 0
-                  ? existingGame.player1Color
-                  : existingGame.player2Color,
-            });
-          });
-
-          players = [];
-        }
+        cb("created Game Successfully");
       }
-
-      cb("Joined Game Successfully");
     });
 
-    socket.on("gameResume", async (roomId, fen) => {
-      let game = await gameModel
-        .findOne({
-          roomId: roomId,
-        })
-        .populate("players")
-        .exec();
-
-      if (!game) {
-        return;
-      }
-
-      game.fen = fen;
-      await game.save();
-
-      //send the fen to the players
-      game.players.forEach((p, index) => {
-        io.to(p.socketId).emit("gameUpdate", {
-          fen: fen,
-          color: index === 0 ? game.player1Color : game.player2Color,
-        });
-      });
+    socket.on("joinRoom", async (roomId, cb) => {
+      socket.join(roomId);
+      cb(`joined room ${roomId}`);
     });
   });
 }

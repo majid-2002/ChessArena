@@ -13,6 +13,10 @@ const playerSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  playerColor: {
+    type: String,
+    required: false
+  },
 });
 
 const playerModel = mongoose.model("Player", playerSchema);
