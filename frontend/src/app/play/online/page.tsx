@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { AiFillPlusSquare } from "react-icons/ai";
 import { Play } from "@/app/components/Play";
 import { connectSocket } from "@/utils/socket";
@@ -13,6 +13,7 @@ export default function PlayOnline() {
   const [boardArray, setBoardArray] = useState(chess.board());
   const [fen, setNewfen] = useState(chess.fen());
   const [playerColor, setPlayerColor] = useState<Color | null>(null);
+  const [gameReady, setGameReady] = useState(false);
 
   useEffect(() => {
     chess.load(fen);
@@ -31,7 +32,8 @@ export default function PlayOnline() {
   const handleSocketActions = (socket: Socket) => {
     let roomId = localStorage.getItem("roomId");
     let playerId = localStorage.getItem("playerId");
-    if (!roomId || !playerColor) {
+
+    if (!roomId || !playerId) {
       if (!playerId) {
         socket.emit("newPlayer", true, (id: string) => {
           localStorage.setItem("playerId", id);
@@ -41,30 +43,53 @@ export default function PlayOnline() {
       } else {
         createGame(socket, playerId);
       }
-      socket.on("gameCreate", (gameData) => {
+      socket.on("gameCreated", (gameData) => {
         localStorage.setItem("roomId", gameData.roomId);
-      });
-    }
-
-    if (playerId && roomId) {
-      console.log("works here ");
-      socket.emit("joinRoom", roomId, (cb: string) => {
-        console.log(cb);
-      });
-      socket.on("gameUpdate", (gameData) => {
-        console.log("Resuming game with data:");
-        console.log(gameData);
-        setNewfen(gameData.fen);
-        chess.load(fen);
-        setCurrentTurn(chess.turn());
-        setBoardArray(change === "w" ? chess.board() : chess.board().reverse());
         setPlayerColor(gameData.color);
       });
     }
+
+    if (roomId && playerId && !gameReady) {
+      socket.emit("joinRoom", roomId, playerId, (cb: string) => {
+        console.log(cb);
+      });
+      socket.on("startGame", (gameData) => {
+        if (gameData.gameReady) {
+          setNewfen(gameData.fen);
+          if (gameData.players) {
+            gameData.players.map((player: any) => {
+              if (player._id === playerId) {
+                setPlayerColor(player.playerColor);
+              }
+            });
+          }
+          setCurrentTurn(chess.turn());
+          setGameReady(gameData.gameReady); //here it is true
+        } else {
+          setGameReady(gameData.gameReady); //here it is false
+        }
+      });
+    }
+
+    // if (playerId && roomId) {
+    //   console.log("works here ");
+    //   socket.emit("joinRoom", roomId, (cb: string) => {
+    //     console.log(cb);
+    //   });
+    //   socket.on("gameUpdate", (gameData) => {
+    //     console.log("Resuming game with data:");
+    //     console.log(gameData);
+    //     setNewfen(gameData.fen);
+    //     chess.load(fen);
+    //     setCurrentTurn(chess.turn());
+    //     setBoardArray(change === "w" ? chess.board() : chess.board().reverse());
+    //     setPlayerColor(gameData.color);
+    //   });
+    // }
   };
 
   const createGame = (socket: Socket, playerId: string) => {
-    socket.emit("createGame", playerId, (cb: any) => {
+    socket.emit("createGame", playerId, fen, (cb: any) => {
       console.log(cb);
     });
   };

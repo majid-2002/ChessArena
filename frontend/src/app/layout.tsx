@@ -21,7 +21,7 @@ export default function RootLayout({
     <html lang="en" className="bg-neutral-900">
       <body
         className={`max-w-screen-xl min-w-[75%] mx-auto bg-neutral-900 ${montserrat.className}`}
-      >
+      > 
         {children}
       </body>
     </html>
