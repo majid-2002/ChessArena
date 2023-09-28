@@ -162,6 +162,10 @@ export function setupSocketIO(server) {
 
       cb(`joined room ${roomId}`);
     });
+
+    socket.on("test", (data)=>{
+      console.log("TESTDATA: ", data);
+    });
   });
 }
 

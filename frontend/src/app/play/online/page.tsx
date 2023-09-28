@@ -5,6 +5,7 @@ import { Play } from "@/app/components/Play";
 import { connectSocket } from "@/utils/socket";
 import { Chess, Color } from "chess.js";
 import { Socket } from "socket.io-client";
+import SocketContext from "@/app/context/SocketContext";
 
 export default function PlayOnline() {
   const chess = new Chess();
@@ -14,6 +15,7 @@ export default function PlayOnline() {
   const [fen, setNewfen] = useState(chess.fen());
   const [playerColor, setPlayerColor] = useState<Color | null>(null);
   const [gameReady, setGameReady] = useState(false);
+  const [socket, setSocket] = useState(connectSocket());
 
   useEffect(() => {
     chess.load(fen);
@@ -22,7 +24,7 @@ export default function PlayOnline() {
   }, [change, playerColor, setNewfen]);
 
   useEffect(() => {
-    const socket = connectSocket();
+    setSocket(connectSocket());
     socket.on("connect", () => {
       console.log("connected to server");
       handleSocketActions(socket);
@@ -95,23 +97,25 @@ export default function PlayOnline() {
   };
 
   return (
+
     <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
       {/* Chessboard */}
-      <Play
-        chess={chess}
-        setCurrentTurn={setCurrentTurn}
-        currentTurn={currentTurn}
-        boardArray={boardArray}
-        setBoardArray={setBoardArray}
-        playComputer={false}
-        change={change}
-        setChange={setChange}
-        fen={fen}
-        setNewfen={setNewfen}
-        playerColor={playerColor}
-        setPlayerColor={setPlayerColor}
-      />
-
+      <SocketContext.Provider value={socket}>
+        <Play
+          chess={chess}
+          setCurrentTurn={setCurrentTurn}
+          currentTurn={currentTurn}
+          boardArray={boardArray}
+          setBoardArray={setBoardArray}
+          playComputer={false}
+          change={change}
+          setChange={setChange}
+          fen={fen}
+          setNewfen={setNewfen}
+          playerColor={playerColor}
+          setPlayerColor={setPlayerColor}
+        />
+      </SocketContext.Provider>
       <div className="w-full h-5/6 sm:w-1/2 md:w-1/3 bg-neutral-800  rounded-md">
         <div className="flex flex-row justify-between w-full items-center">
           <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1">
