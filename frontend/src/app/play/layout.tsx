@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { NavBar } from '../components/NavBar'
 
 export const metadata: Metadata = {
   title: 'Play',
@@ -12,6 +13,7 @@ export default function RootLayout({
 }){
   return (
     <div>
+      <NavBar/>
       {children}
     </div>
   )
