@@ -43,7 +43,8 @@ export function setupSocketIO(server) {
   });
 
   let lobby = [];
-  let selectedPlayers = [];
+  let playersInRoom = [];
+  const connectedPlayers = {};
 
   io.on("connection", (socket) => {
     console.log("a user connected \n\n");
@@ -57,62 +58,108 @@ export function setupSocketIO(server) {
       cb(newPlayer._id);
     });
 
-    socket.on("createGame", async (playerId, cb) => {
-      const player = await playerModel.findById(playerId).exec();
+    socket.on("createGame", async (playerId, fen, cb) => {
+      try {
+        const player = await playerModel.findById(playerId).exec();
 
-      if (!player) {
-        return;
-      }
-
-      if (player) {
-        player.socketId = socket.id;
-        await player.save();
-      }
-
-      if (!lobby.some((p) => p._id.toString() === player._id.toString())) {
-        lobby.push(player);
-      }
-
-      if (lobby.length == 0) lobby.push(player);
-
-      if (lobby.length >= 2) {
-        selectedPlayers = lobby.splice(0, 2);
-
-        const roomId = generateUniqueRoomId();
-
-        for (const p of selectedPlayers) {
-          let player = await playerModel.findById(p._id);
-          player.playerColor = ["w","b"][selectedPlayers.indexOf(p)];
-          await player.save();
+        if (!player) {
+          return cb("Player not found");
         }
 
-        const newGame = new gameModel({
-          roomId: roomId,
-          players: selectedPlayers.map((p) => p._id),
-        });
+        player.socketId = socket.id;
+        await player.save();
 
-        await newGame.save();
+        if (!lobby.some((p) => p._id.toString() === player._id.toString())) {
+          lobby.push(player);
+        }
 
-        const game = await gameModel
-          .findOne({
+        if (lobby.length >= 2) {
+          const selectedPlayers = lobby.splice(0, 2);
+          const roomId = generateUniqueRoomId();
+
+          for (const selectedPlayer of selectedPlayers) {
+            selectedPlayer.playerColor = ["w", "b"][
+              selectedPlayers.indexOf(selectedPlayer)
+            ];
+            await selectedPlayer.save();
+          }
+
+          const newGame = new gameModel({
             roomId: roomId,
-          })
-          .populate("players")
-          .exec();
-
-        game.players.forEach((p) => {
-          io.to(p.socketId).emit("gameCreate", {
-            roomId: roomId,
-            color: p.playerColor,
+            players: selectedPlayers.map((p) => p._id),
+            fen: fen,
           });
-        });
 
-        cb("created Game Successfully");
+          await newGame.save();
+
+          selectedPlayers.forEach((p) => {
+            io.to(p.socketId).emit("gameCreated", {
+              roomId: roomId,
+              color: p.playerColor,
+            });
+          });
+          cb("Created game successfully");
+        } else {
+          cb("Waiting for more players");
+        }
+      } catch (error) {
+        console.error(error);
+        cb("An error occurred");
       }
     });
 
-    socket.on("joinRoom", async (roomId, cb) => {
+    socket.on("joinRoom", async (roomId, playerId, cb) => {
       socket.join(roomId);
+
+      if (!playerId) {
+        return cb("Player not found");
+      }
+
+      let game = await gameModel
+        .findOne({ roomId: roomId })
+        .populate("players");
+
+      connectedPlayers[socket.id] = playerId;
+
+      if (playersInRoom.length == 0) playersInRoom.push(playerId);
+      else {
+        if (!playersInRoom.some((p) => p == playerId))
+          playersInRoom.push(playerId);
+      }
+
+      if (!game) {
+        return cb("Game not found");
+      }
+
+      if (playersInRoom.length == 2) {
+        io.to(roomId).emit("startGame", {
+          gameReady: true,
+          players: game.players,
+          fen: game.fen,
+        });
+      } else {
+        socket.emit("startGame", {
+          gameReady: false,
+        });
+      }
+
+      socket.on("disconnect", () => {
+        const disconnectedPlayerId = connectedPlayers[socket.id];
+
+        if (disconnectedPlayerId) {
+          socket.leave(roomId);
+          const index = playersInRoom.indexOf(disconnectedPlayerId); //? check if player is in room
+          if (index > -1) {
+            playersInRoom.splice(index, 1); //? remove player from room if they disconnect
+            io.to(roomId).emit("startGame", {
+              gameReady: false,
+            });
+          }
+          delete connectedPlayers[socket.id]; //? remove player from connected players
+        }
+        socket.disconnect(true);
+      });
+
       cb(`joined room ${roomId}`);
     });
   });
