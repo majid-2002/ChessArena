@@ -1,27 +1,11 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
-import { connectSocket } from "@/utils/socket"; // Import your socket connection function here
+import { createContext } from "react";
+import { Socket } from "socket.io-client";
 
-const SocketContext = createContext(connectSocket());
+type SocketContextType = {
+  socket: Socket | null; 
+};
 
-export function useSocket() {
-  return useContext(SocketContext);
-}
-
-export function SocketProvider({ children }: any) {
-  const [socket, setSocket] = useState(connectSocket());
-
-  useEffect(() => {
-    const newSocket = connectSocket();
-    setSocket(newSocket);
-
-    return () => {
-      newSocket.disconnect();
-    };
-  }, []);
-
-  return (
-    <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
-  );
-}
+// Create the SocketContext with the specified type
+export const SocketContext = createContext<SocketContextType>({ socket: null });

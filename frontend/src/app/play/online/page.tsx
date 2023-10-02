@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { AiFillPlusSquare } from "react-icons/ai";
 import { Play } from "@/app/components/Play";
 import { connectSocket } from "@/utils/socket";
@@ -19,6 +19,7 @@ export default function PlayOnline() {
     chess.load(fen);
     if (playerColor) setChange(playerColor);
     setBoardArray(change === "w" ? chess.board() : chess.board().reverse());
+    setCurrentTurn(chess.turn())
   }, [change, playerColor, setNewfen]);
 
   useEffect(() => {
@@ -30,62 +31,62 @@ export default function PlayOnline() {
   }, []);
 
   const handleSocketActions = (socket: Socket) => {
-    let roomId = localStorage.getItem("roomId");
-    let playerId = localStorage.getItem("playerId");
+    const initializePlayer = async () => {
+      let roomId = localStorage.getItem("roomId");
+      let playerId = localStorage.getItem("playerId");
 
-    if (!roomId || !playerId) {
-      if (!playerId) {
-        socket.emit("newPlayer", true, (id: string) => {
-          localStorage.setItem("playerId", id);
-          playerId = id;
+      if (!roomId || !playerId) {
+        if (!playerId) {
+          await new Promise((resolve) => {
+            socket.emit("newPlayer", true, (id: string) => {
+              localStorage.setItem("playerId", id);
+              playerId = id;
+              createGame(socket, playerId);
+              resolve(true);
+            });
+          });
+        } else {
           createGame(socket, playerId);
-        });
-      } else {
-        createGame(socket, playerId);
+        }
       }
+
       socket.on("gameCreated", (gameData) => {
         localStorage.setItem("roomId", gameData.roomId);
         setPlayerColor(gameData.color);
+        handleCommonLogic();
       });
-    }
 
-    if (roomId && playerId && !gameReady) {
-      socket.emit("joinRoom", roomId, playerId, (cb: string) => {
-        console.log(cb);
-      });
-      socket.on("startGame", (gameData) => {
-        if (gameData.gameReady) {
-          setNewfen(gameData.fen);
-          if (gameData.players) {
-            gameData.players.map((player: any) => {
-              if (player._id === playerId) {
-                setPlayerColor(player.playerColor);
-              }
-            });
+      handleCommonLogic();
+    };
+
+    const handleCommonLogic = () => {
+      const roomId = localStorage.getItem("roomId");
+      const playerId = localStorage.getItem("playerId");
+
+
+      if (roomId && playerId && !gameReady) {
+        socket.emit("joinRoom", roomId, playerId, (cb: string) => {
+          console.log(cb);
+        });
+        socket.on("startGame", async (gameData) => {
+          if (gameData.gameReady) {
+            setNewfen(gameData.fen);
+            if (gameData.players) {
+              gameData.players.map((player: any) => {
+                if (player._id === playerId) {
+                  setPlayerColor(player.playerColor);
+                }
+              });
+            }
+            setGameReady(gameData.gameReady);
+          } else {
+            setGameReady(gameData.gameReady); //here it is false
           }
-          setCurrentTurn(chess.turn());
-          setGameReady(gameData.gameReady); //here it is true
-        } else {
-          setGameReady(gameData.gameReady); //here it is false
-        }
-      });
-    }
+        });
+      }
+    };
 
-    // if (playerId && roomId) {
-    //   console.log("works here ");
-    //   socket.emit("joinRoom", roomId, (cb: string) => {
-    //     console.log(cb);
-    //   });
-    //   socket.on("gameUpdate", (gameData) => {
-    //     console.log("Resuming game with data:");
-    //     console.log(gameData);
-    //     setNewfen(gameData.fen);
-    //     chess.load(fen);
-    //     setCurrentTurn(chess.turn());
-    //     setBoardArray(change === "w" ? chess.board() : chess.board().reverse());
-    //     setPlayerColor(gameData.color);
-    //   });
-    // }
+    initializePlayer();
   };
 
   const createGame = (socket: Socket, playerId: string) => {
@@ -110,8 +111,8 @@ export default function PlayOnline() {
         setNewfen={setNewfen}
         playerColor={playerColor}
         setPlayerColor={setPlayerColor}
+        gameReady={gameReady}
       />
-
       <div className="w-full h-5/6 sm:w-1/2 md:w-1/3 bg-neutral-800  rounded-md">
         <div className="flex flex-row justify-between w-full items-center">
           <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1">

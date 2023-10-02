@@ -5,7 +5,7 @@ let socketInstance: Socket | null = null;
 
 export const connectSocket = () => {
   if (!socketInstance) {
-    socketInstance = io("ws://localhost:6001");
+    socketInstance = io("ws://192.168.43.200:6001");
   }
   return socketInstance;
 };

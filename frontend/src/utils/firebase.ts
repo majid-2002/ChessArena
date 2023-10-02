@@ -21,15 +21,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-
-
-
-
 // Signup
-const provider = new GoogleAuthProvider();
+export const provider = new GoogleAuthProvider();
 provider.addScope("https://www.googleapis.com/auth/contacts.readonly");
 
-const auth = getAuth(app);
+export const auth = getAuth(app);
+
 export const signInWithGoogle = () => {
   signInWithPopup(auth, provider)
     .then((result) => {
@@ -39,6 +36,7 @@ export const signInWithGoogle = () => {
       console.log(token);
       // The signed-in user info.
       const user = result.user;
+      // console.log(user);
       // IdP data available using getAdditionalUserInfo(result)
       // ...
     })

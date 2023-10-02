@@ -157,11 +157,33 @@ export function setupSocketIO(server) {
           }
           delete connectedPlayers[socket.id]; //? remove player from connected players
         }
-        socket.disconnect(true);
+        socket.disconnect();
       });
 
       cb(`joined room ${roomId}`);
     });
+
+    socket.on("gameUpdate", async (roomId, fen, cb) => {
+
+      console.log("updated fen", fen);
+
+      let game = await gameModel
+        .findOne({ roomId: roomId })
+        .populate("players");
+
+      if (!game) {
+        return cb("Game not found");
+      }
+
+
+      game.fen = fen;
+      await game.save();
+
+      socket.to(roomId).emit("gameUpdate", fen);
+      
+      cb("Game updated");
+    });
+
   });
 }
 
