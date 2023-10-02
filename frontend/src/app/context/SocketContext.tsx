@@ -1,8 +1,11 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
-import { connectSocket } from "@/utils/socket"; // Import your socket connection function here
+import { createContext } from "react";
+import { Socket } from "socket.io-client";
 
-const SocketContext = createContext(connectSocket());
+type SocketContextType = {
+  socket: Socket | null; 
+};
 
-export default SocketContext;
+// Create the SocketContext with the specified type
+export const SocketContext = createContext<SocketContextType>({ socket: null });

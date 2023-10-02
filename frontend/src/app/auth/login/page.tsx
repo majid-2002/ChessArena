@@ -1,30 +1,33 @@
 "use client";
-import { auth, provider } from "@/utils/firebase";
-import { getAuth, signInWithPopup } from "firebase/auth";
+import { auth, provider, signInWithGoogle } from "@/utils/firebase";
 import { useEffect } from "react";
 import { FcGoogle } from "react-icons/fc";
-import { useAuthState } from 'react-firebase-hooks/auth';
-
+import { useAuthState } from "react-firebase-hooks/auth";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
+  const router = useRouter();
   const [user] = useAuthState(auth);
 
-  useEffect(()=>{
-    if(user){
-      window.location.href = "/play/online";
+  useEffect(() => {
+    if (user) {
+      router.push("/play/online");
     }
   }, [user]);
 
   return (
-    <div >
+    <div>
       {user ? <p>{auth.currentUser?.displayName}</p> : ""}
-      <button className="btn " onClick={() => {
-        if(user){
-          auth.signOut();
-        }else{
-          window.my_modal_1.showModal();
-        }
-      }}>
+      <button
+        className="btn "
+        onClick={() => {
+          if (user) {
+            auth.signOut();
+          } else {
+            window.my_modal_1.showModal();
+          }
+        }}
+      >
         {user ? "Sign Out" : "Sign Up"}
       </button>
       <dialog id="my_modal_1" className="modal">
@@ -64,7 +67,9 @@ export default function Page() {
             <FcGoogle className="inline-block mr-2 text-3xl" />
             <button
               className="text-black font-semibold text-sm bg-white w-full mr-6"
-              onClick={() => signInWithPopup(auth, provider)}
+              onClick={() => {
+                signInWithGoogle();
+              }}
             >
               Sign Up with Google
             </button>
