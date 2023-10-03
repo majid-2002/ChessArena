@@ -105,170 +105,206 @@ export const Play = ({
   }, [gameReady]);
 
   return (
-    <div className="relative w-full sm:w-1/2 justify-center flex items-center">
-      {!gameReady && (
-        <div className="h-full absolute w-full backdrop-blur-sm z-10 flex items-center justify-center bg-[rgba(0,0,0,0.6)]">
-          <p className="text-xl sm:text-4xl font-extrabold text-neutral-300 text-center">
-            Waiting for opponent {dots.split("").join(" ")}
-          </p>
+    <div className=" w-full sm:w-1/2 justify-center flex flex-col items-center space-y-2">
+      <div className="flex flex-row justify-between w-full">
+        <div className="flex flex-row gap-x-2">
+          <div>
+            <Image
+              src={"https://www.chess.com/bundles/web/images/black_400.png"}
+              alt="Opponent"
+              width={40}
+              height={40}
+            ></Image>
+          </div>
+          <p className="text-white font-bold text-xs p-1">Opponent</p>
         </div>
-      )}
-      <Image
-        src={gameReady ? chessboardPlain : chessBoardDemo}
-        alt="Chessboard"
-        className="w-full h-full"
-      />
-      <div className="grid grid-cols-8 grid-rows-8 absolute top-0 w-full ">
-        {gameReady &&
-          boardArray.map((row: any, rowIndex: number) => {
-            return row.map((piece: any, colIndex: number) => {
-              const square = `${String.fromCharCode(97 + colIndex)}${
-                change === "w" ? 8 - rowIndex : rowIndex + 1
-              }`;
+        <div className="flex items-center px-4">
+          <p className="font-bold text-neutral-500 text-2xl">3:00</p>
+        </div>
+      </div>
+      <div className="relative">
+        {!gameReady && (
+          <div className="h-full absolute w-full backdrop-blur-sm z-10 flex items-center justify-center bg-[rgba(0,0,0,0.6)]">
+            <p className="text-xl sm:text-4xl font-bold text-neutral-300 text-center">
+              Waiting for opponent {dots.split("").join(" ")}
+            </p>
+          </div>
+        )}
+        <Image
+          src={gameReady ? chessboardPlain : chessBoardDemo}
+          alt="Chessboard"
+          className="w-full h-full"
+        />
+        <div className="grid grid-cols-8 grid-rows-8 absolute top-0 w-full ">
+          {gameReady &&
+            boardArray.map((row: any, rowIndex: number) => {
+              return row.map((piece: any, colIndex: number) => {
+                const square = `${String.fromCharCode(97 + colIndex)}${
+                  change === "w" ? 8 - rowIndex : rowIndex + 1
+                }`;
 
-              return (
-                <div key={colIndex} className="h-full w-full relative">
-                  {piece ? (
-                    <div
-                      className={
-                        piece.square === currentPosition
-                          ? "w-full h-full bg-[#BBCC44]"
-                          : shouldHighlightSquare(piece.square)
-                          ? "w-full h-full bg-[#f6ab80] border border-[#f6ab80]"
-                          : "w-full h-full"
-                      }
-                      onClick={() => {
-                        if (currentTurn !== playerColor) return;
+                return (
+                  <div key={colIndex} className="h-full w-full relative">
+                    {piece ? (
+                      <div
+                        className={
+                          piece.square === currentPosition
+                            ? "w-full h-full bg-[#BBCC44]"
+                            : shouldHighlightSquare(piece.square)
+                            ? "w-full h-full bg-[#f6ab80] border border-[#f6ab80]"
+                            : "w-full h-full"
+                        }
+                        onClick={() => {
+                          if (currentTurn !== playerColor) return;
 
-                        if (moves.length === 0) {
-                          chess.load(fen);
-                          setMoves(
-                            chess.moves({
-                              square: piece.square,
-                              piece: piece.type,
-                              verbose: true,
-                            })
-                          );
-                          setCurrentPosition(piece.square);
-                        } else if (shouldHighlightSquare(piece.square)) {
-                          chess.load(fen);
-                          if (moves.some((move) => move.to === piece.square)) {
-                            chess.move({
-                              from: currentPosition,
-                              to: piece.square,
-                            });
+                          if (moves.length === 0) {
+                            chess.load(fen);
+                            setMoves(
+                              chess.moves({
+                                square: piece.square,
+                                piece: piece.type,
+                                verbose: true,
+                              })
+                            );
+                            setCurrentPosition(piece.square);
+                          } else if (shouldHighlightSquare(piece.square)) {
+                            chess.load(fen);
+                            if (
+                              moves.some((move) => move.to === piece.square)
+                            ) {
+                              chess.move({
+                                from: currentPosition,
+                                to: piece.square,
+                              });
+                            } else {
+                              setMoves([]);
+                              return;
+                            }
+                            setNewfen(chess.fen());
+                            setOnMove(true);
+                            setCurrentTurn(chess.turn());
+                            setBoardArray(
+                              change == "w"
+                                ? chess.board()
+                                : chess.board().reverse()
+                            );
+                            setMoves([]);
+                            setCurrentPosition(piece.square);
+                            if (playComputer) {
+                              makeComputerMove();
+                            }
                           } else {
                             setMoves([]);
-                            return;
+                            setCurrentPosition("");
                           }
-                          setNewfen(chess.fen());
-                          setOnMove(true);
-                          setCurrentTurn(chess.turn());
-                          setBoardArray(
-                            change == "w"
-                              ? chess.board()
-                              : chess.board().reverse()
-                          );
-                          setMoves([]);
-                          setCurrentPosition(piece.square);
-                          if (playComputer) {
-                            makeComputerMove();
-                          }
-                        } else {
-                          setMoves([]);
-                          setCurrentPosition("");
-                        }
-                      }}
-                    >
-                      {rowIndex === 7 && (
-                        <div
-                          className={`absolute bottom-0 right-1 text-sm ${
-                            (colIndex + 1) % 2 === 0
-                              ? "text-green-700"
-                              : "text-white"
-                          }`}
-                        >
-                          {piece.square[0]}
-                        </div>
-                      )}
-                      {colIndex === 0 && (
-                        <div
-                          className={`absolute top-0 left-1 text-sm ${
-                            (rowIndex + 1) % 2 === 0
-                              ? "text-white"
-                              : "text-green-700"
-                          }`}
-                        >
-                          {piece.square[1]}
-                        </div>
-                      )}
-                      <Image
-                        src={pieceImageData(piece.type, piece.color)}
-                        alt="piece"
-                        width={200}
-                        height={200}
-                        className="w-full h-full"
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      className={`w-full h-full ${
-                        shouldHighlightSquare(square as Square)
-                          ? "bg-[#f4f680] border border-[#efe862]"
-                          : ""
-                      }`}
-                      onClick={() => {
-                        if (currentTurn !== playerColor) return;
-                        if (moves.length > 0) {
-                          chess.load(fen);
-                          if (moves.some((move) => move.to === square)) {
-                            chess.move({
-                              from: currentPosition,
-                              to: square,
-                            });
-                          } else {
+                        }}
+                      >
+                        {rowIndex === 7 && (
+                          <div
+                            className={`absolute bottom-0 right-1 text-sm ${
+                              (colIndex + 1) % 2 === 0
+                                ? "text-green-700"
+                                : "text-white"
+                            }`}
+                          >
+                            {piece.square[0]}
+                          </div>
+                        )}
+                        {colIndex === 0 && (
+                          <div
+                            className={`absolute top-0 left-1 text-sm ${
+                              (rowIndex + 1) % 2 === 0
+                                ? "text-white"
+                                : "text-green-700"
+                            }`}
+                          >
+                            {piece.square[1]}
+                          </div>
+                        )}
+                        <Image
+                          src={pieceImageData(piece.type, piece.color)}
+                          alt="piece"
+                          width={200}
+                          height={200}
+                          className="w-full h-full"
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className={`w-full h-full ${
+                          shouldHighlightSquare(square as Square)
+                            ? "bg-[#f4f680] border border-[#efe862]"
+                            : ""
+                        }`}
+                        onClick={() => {
+                          if (currentTurn !== playerColor) return;
+                          if (moves.length > 0) {
+                            chess.load(fen);
+                            if (moves.some((move) => move.to === square)) {
+                              chess.move({
+                                from: currentPosition,
+                                to: square,
+                              });
+                            } else {
+                              setMoves([]);
+                              return;
+                            }
+                            setNewfen(chess.fen());
+                            setOnMove(true);
+                            setCurrentTurn(chess.turn());
+                            setBoardArray(
+                              change == "w"
+                                ? chess.board()
+                                : chess.board().reverse()
+                            );
                             setMoves([]);
-                            return;
+                            if (playComputer) {
+                              makeComputerMove();
+                            }
                           }
-                          setNewfen(chess.fen());
-                          setOnMove(true);
-                          setCurrentTurn(chess.turn());
-                          setBoardArray(
-                            change == "w"
-                              ? chess.board()
-                              : chess.board().reverse()
-                          );
-                          setMoves([]);
-                          if (playComputer) {
-                            makeComputerMove();
-                          }
-                        }
-                      }}
-                    >
-                      {colIndex === 0 && (
-                        <div
-                          className={`absolute top-0 left-1 text-sm ${
-                            (rowIndex + 1) % 2 === 0
-                              ? "text-white"
-                              : "text-green-700"
-                          }`}
-                        >
-                          {square[1]}
-                        </div>
-                      )}
-                      <Image
-                        src={pieceImageData("p", "b")}
-                        alt="piece"
-                        width={200}
-                        height={200}
-                        className="w-full h-full opacity-0"
-                      />
-                    </div>
-                  )}
-                </div>
-              );
-            });
-          })}
+                        }}
+                      >
+                        {colIndex === 0 && (
+                          <div
+                            className={`absolute top-0 left-1 text-sm ${
+                              (rowIndex + 1) % 2 === 0
+                                ? "text-white"
+                                : "text-green-700"
+                            }`}
+                          >
+                            {square[1]}
+                          </div>
+                        )}
+                        <Image
+                          src={pieceImageData("p", "b")}
+                          alt="piece"
+                          width={200}
+                          height={200}
+                          className="w-full h-full opacity-0"
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              });
+            })}
+        </div>
+      </div>
+      <div className="flex flex-row justify-between w-full">
+        <div className="flex flex-row gap-x-2">
+          <div>
+            <Image
+              src={"https://www.chess.com/bundles/web/images/white_400.png"}
+              alt="Opponent"
+              width={40}
+              height={40}
+            ></Image>
+          </div>
+          <p className="text-white font-bold text-xs p-1">Opponent</p>
+        </div>
+        <div className="flex items-center px-4">
+          <p className="font-bold text-neutral-500 text-2xl">3:00</p>
+        </div>
       </div>
     </div>
   );

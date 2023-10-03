@@ -5,6 +5,7 @@ import { Play } from "@/app/components/Play";
 import { connectSocket } from "@/utils/socket";
 import { Chess, Color } from "chess.js";
 import { Socket } from "socket.io-client";
+import { ButtonGray, ButtonLime } from "@/app/components/Button";
 
 export default function PlayOnline() {
   const chess = new Chess();
@@ -19,7 +20,7 @@ export default function PlayOnline() {
     chess.load(fen);
     if (playerColor) setChange(playerColor);
     setBoardArray(change === "w" ? chess.board() : chess.board().reverse());
-    setCurrentTurn(chess.turn())
+    setCurrentTurn(chess.turn());
   }, [change, playerColor, setNewfen]);
 
   useEffect(() => {
@@ -63,7 +64,6 @@ export default function PlayOnline() {
       const roomId = localStorage.getItem("roomId");
       const playerId = localStorage.getItem("playerId");
 
-
       if (roomId && playerId && !gameReady) {
         socket.emit("joinRoom", roomId, playerId, (cb: string) => {
           console.log(cb);
@@ -96,7 +96,7 @@ export default function PlayOnline() {
   };
 
   return (
-    <div className="w-full h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-5 space-y-8 p-5">
+    <div className="w-full sm:min-h-[700px] sm:max-h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-10 border border-white py-1">
       {/* Chessboard */}
       <Play
         chess={chess}
@@ -113,35 +113,31 @@ export default function PlayOnline() {
         setPlayerColor={setPlayerColor}
         gameReady={gameReady}
       />
-      <div className="w-full h-5/6 sm:w-1/2 md:w-1/3 bg-neutral-800  rounded-md">
+      <div className="sm:w-1/3 w-full bg-stone-800/40 rounded-md sm:min-h-[95vh] sm:max-h-screen">
         <div className="flex flex-row justify-between w-full items-center">
-          <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1">
+          <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1 bg-stone-700/25 rounded-md m-1">
             <AiFillPlusSquare className="text-2xl" />
-            <p className="text-xs">New Game</p>
+            <p className="text-sm">New Game</p>
           </div>
-          <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1">
+          {/* <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1">
             <AiFillPlusSquare className="text-2xl" />
             <p className="text-xs">Games</p>
           </div>
           <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1">
             <AiFillPlusSquare className="text-2xl" />
             <p className="text-xs">Players</p>
-          </div>
+          </div> */}
         </div>
-        <div className=" flex-col flex p-5 space-y-5">
-          <div className="bg-lime-300/70 flex items-center justify-center rounded-xl text-center shadow-xl sm:text-2xl text-white font-bold border border-b-8 border-green-900/70 rounded-b-2xl">
-            <button className="text-shadow-lg p-2 w-full">Play</button>
-          </div>
-          <div className="bg-neutral-600/70 flex items-center justify-center rounded-xl text-center shadow-xl sm:text-2xl text-white font-bold border border-b-8 border-neutral-800/70 rounded-b-2xl">
-            <button
-              className="text-shadow-lg p-2 w-full"
-              onClick={() => {
-                setChange(change === "w" ? "b" : "w");
-              }}
-            >
-              Change
-            </button>
-          </div>
+        <div className="flex-col flex p-5 space-y-5">
+          <ButtonLime>Play</ButtonLime>
+          <ButtonGray
+            onClick={() => {
+              setChange(change === "w" ? "b" : "w");
+            }}
+          >
+            Change
+          </ButtonGray>
+
           <p className="text-red-50">
             Current Turn: {currentTurn === "w" ? "White" : "Black"}
           </p>
