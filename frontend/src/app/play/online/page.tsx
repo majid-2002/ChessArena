@@ -5,7 +5,8 @@ import { Play } from "@/app/components/Play";
 import { connectSocket } from "@/utils/socket";
 import { Chess, Color } from "chess.js";
 import { Socket } from "socket.io-client";
-import { ButtonGray, ButtonLime } from "@/app/components/Button";
+import { ButtonGray, ButtonLime, ChipButton } from "@/app/components/Button";
+import Dropdown from "@/app/components/Dropdown";
 
 export default function PlayOnline() {
   const chess = new Chess();
@@ -15,12 +16,18 @@ export default function PlayOnline() {
   const [fen, setNewfen] = useState(chess.fen());
   const [playerColor, setPlayerColor] = useState<Color | null>(null);
   const [gameReady, setGameReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showOptions, setShowOptions] = useState(false);
 
   useEffect(() => {
     chess.load(fen);
     if (playerColor) setChange(playerColor);
     setBoardArray(change === "w" ? chess.board() : chess.board().reverse());
     setCurrentTurn(chess.turn());
+
+    setTimeout(() => {
+      setIsLoading(false); // Turn off the loading spinner after data is loaded
+    }, 2000);
   }, [change, playerColor, setNewfen]);
 
   useEffect(() => {
@@ -96,30 +103,34 @@ export default function PlayOnline() {
   };
 
   return (
-    <div className="w-full sm:min-h-[700px] sm:max-h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-10 border border-white py-1">
+    <div className="w-full sm:min-h-[700px] sm:max-h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-10 py-1">
       {/* Chessboard */}
-      <Play
-        chess={chess}
-        setCurrentTurn={setCurrentTurn}
-        currentTurn={currentTurn}
-        boardArray={boardArray}
-        setBoardArray={setBoardArray}
-        playComputer={false}
-        change={change}
-        setChange={setChange}
-        fen={fen}
-        setNewfen={setNewfen}
-        playerColor={playerColor}
-        setPlayerColor={setPlayerColor}
-        gameReady={gameReady}
-      />
-      <div className="sm:w-1/3 w-full bg-stone-800/40 rounded-md sm:min-h-[95vh] sm:max-h-screen">
-        <div className="flex flex-row justify-between w-full items-center">
-          <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1 bg-stone-700/25 rounded-md m-1">
-            <AiFillPlusSquare className="text-2xl" />
-            <p className="text-sm">New Game</p>
-          </div>
-          {/* <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1">
+      {isLoading ? (
+        <span className="loading loading-bars loading-md"></span>
+      ) : (
+        <>
+          <Play
+            chess={chess}
+            setCurrentTurn={setCurrentTurn}
+            currentTurn={currentTurn}
+            boardArray={boardArray}
+            setBoardArray={setBoardArray}
+            playComputer={false}
+            change={change}
+            setChange={setChange}
+            fen={fen}
+            setNewfen={setNewfen}
+            playerColor={playerColor}
+            setPlayerColor={setPlayerColor}
+            gameReady={gameReady}
+          />
+          <div className="sm:w-1/3 w-full bg-stone-800/40 rounded-md sm:min-h-[95vh] sm:max-h-screen">
+            <div className="flex flex-row justify-between w-full items-center">
+              <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1 bg-stone-700/25 rounded-md m-1">
+                <AiFillPlusSquare className="text-2xl" />
+                <p className="text-sm">New Game</p>
+              </div>
+              {/* <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1">
             <AiFillPlusSquare className="text-2xl" />
             <p className="text-xs">Games</p>
           </div>
@@ -127,22 +138,51 @@ export default function PlayOnline() {
             <AiFillPlusSquare className="text-2xl" />
             <p className="text-xs">Players</p>
           </div> */}
-        </div>
-        <div className="flex-col flex p-5 space-y-5">
-          <ButtonLime>Play</ButtonLime>
-          <ButtonGray
-            onClick={() => {
-              setChange(change === "w" ? "b" : "w");
-            }}
-          >
-            Change
-          </ButtonGray>
+            </div>
+            <div className="flex-col flex p-5 space-y-5 w-full">
+              {/* <Dropdown heading="10 min">
+                <div className="flex flex-row justify-evenly">
+                  <ChipButton>10 min</ChipButton>
+                  <ChipButton>10 min</ChipButton>
+                  <ChipButton>10 min</ChipButton>
+                </div>
+              </Dropdown> */}
+              <div
+                className="collapse collapse-arrow border-none rounded-md bg-stone-800"
+                onClick={() => {
+                  setShowOptions(!showOptions);
+                }}
+              >
+                <p
+                  className="collapse-title text-base text-neutral-200 text-center font-semibold"
+                  style={{ paddingLeft: "3em" }}
+                >
+                  10 min
+                </p>
+              </div>
 
-          <p className="text-red-50">
-            Current Turn: {currentTurn === "w" ? "White" : "Black"}
-          </p>
-        </div>
-      </div>
+              <div className="w-">
+                {showOptions && (
+                  <div className="flex flex-row justify-center space-x-4">
+                    <ChipButton>10 min</ChipButton>
+                    <ChipButton>10 min</ChipButton>
+                    <ChipButton>10 min</ChipButton>
+                  </div>
+                )}
+              </div>
+
+              <ButtonLime>Play</ButtonLime>
+              {/* <ButtonGray
+                onClick={() => {
+                  setChange(change === "w" ? "b" : "w");
+                }}
+              >
+                Change
+              </ButtonGray> */}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

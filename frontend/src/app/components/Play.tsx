@@ -118,7 +118,7 @@ export const Play = ({
           </div>
           <p className="text-white font-bold text-xs p-1">Opponent</p>
         </div>
-        <div className="flex items-center px-4">
+        <div className={"flex items-center px-4 font-sans"}>
           <p className="font-bold text-neutral-500 text-2xl">3:00</p>
         </div>
       </div>
@@ -302,8 +302,8 @@ export const Play = ({
           </div>
           <p className="text-white font-bold text-xs p-1">Opponent</p>
         </div>
-        <div className="flex items-center px-4">
-          <p className="font-bold text-neutral-500 text-2xl">3:00</p>
+        <div className="flex items-center px-4 font-sans">
+          <p className="font-bold text-neutral-500 text-2xl ">3:00</p>
         </div>
       </div>
     </div>
