@@ -140,15 +140,8 @@ export default function PlayOnline() {
           </div> */}
             </div>
             <div className="flex-col flex p-5 space-y-5 w-full">
-              {/* <Dropdown heading="10 min">
-                <div className="flex flex-row justify-evenly">
-                  <ChipButton>10 min</ChipButton>
-                  <ChipButton>10 min</ChipButton>
-                  <ChipButton>10 min</ChipButton>
-                </div>
-              </Dropdown> */}
               <div
-                className="collapse collapse-arrow border-none rounded-md bg-stone-800"
+                className="collapse collapse-arrow border-none rounded-md bg-stone-800 hover:bg-stone-700/75"
                 onClick={() => {
                   setShowOptions(!showOptions);
                 }}
@@ -164,9 +157,9 @@ export default function PlayOnline() {
               <div className="w-">
                 {showOptions && (
                   <div className="flex flex-row justify-center space-x-4">
+                    <ChipButton>5 min</ChipButton>
                     <ChipButton>10 min</ChipButton>
-                    <ChipButton>10 min</ChipButton>
-                    <ChipButton>10 min</ChipButton>
+                    <ChipButton>30 min</ChipButton>
                   </div>
                 )}
               </div>

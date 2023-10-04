@@ -110,7 +110,7 @@ export const Play = ({
         <div className="flex flex-row gap-x-2">
           <div>
             <Image
-              src={"https://www.chess.com/bundles/web/images/black_400.png"}
+              src={`https://www.chess.com/bundles/web/images/${playerColor == "w" ? "black_400" : "white_400"}.png`}
               alt="Opponent"
               width={40}
               height={40}
@@ -294,7 +294,7 @@ export const Play = ({
         <div className="flex flex-row gap-x-2">
           <div>
             <Image
-              src={"https://www.chess.com/bundles/web/images/white_400.png"}
+              src={`https://www.chess.com/bundles/web/images/${playerColor == "w" ? "white_400" : "black_400"}.png`}
               alt="Opponent"
               width={40}
               height={40}
