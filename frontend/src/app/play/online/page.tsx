@@ -6,7 +6,6 @@ import { connectSocket } from "@/utils/socket";
 import { Chess, Color } from "chess.js";
 import { Socket } from "socket.io-client";
 import { ButtonGray, ButtonLime, ChipButton } from "@/app/components/Button";
-import Dropdown from "@/app/components/Dropdown";
 
 export default function PlayOnline() {
   const chess = new Chess();
@@ -124,7 +123,7 @@ export default function PlayOnline() {
             setPlayerColor={setPlayerColor}
             gameReady={gameReady}
           />
-          <div className="sm:w-1/3 w-full bg-stone-800/40 rounded-md sm:min-h-[95vh] sm:max-h-screen">
+          <div className="sm:w-[30vw] w-full bg-stone-800/40 rounded-md sm:min-h-[95vh] sm:max-h-screen">
             <div className="flex flex-row justify-between w-full items-center">
               <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1 bg-stone-700/25 rounded-md m-1">
                 <AiFillPlusSquare className="text-2xl" />
@@ -139,6 +138,7 @@ export default function PlayOnline() {
             <p className="text-xs">Players</p>
           </div> */}
             </div>
+
             <div className="flex-col flex p-5 space-y-5 w-full">
               <div
                 className="collapse collapse-arrow border-none rounded-md bg-stone-800 hover:bg-stone-700/75"
@@ -154,25 +154,23 @@ export default function PlayOnline() {
                 </p>
               </div>
 
-              <div className="w-">
-                {showOptions && (
-                  <div className="flex flex-row justify-center space-x-4">
-                    <ChipButton>5 min</ChipButton>
-                    <ChipButton>10 min</ChipButton>
-                    <ChipButton>30 min</ChipButton>
-                  </div>
-                )}
-              </div>
-
+              {showOptions && (
+                <div className="flex flex-row justify-center space-x-4">
+                  <ChipButton>5 min</ChipButton>
+                  <ChipButton>10 min</ChipButton>
+                  <ChipButton>30 min</ChipButton>
+                </div>
+              )}
               <ButtonLime>Play</ButtonLime>
-              {/* <ButtonGray
+            </div>
+
+            {/* <ButtonGray
                 onClick={() => {
                   setChange(change === "w" ? "b" : "w");
                 }}
               >
                 Change
               </ButtonGray> */}
-            </div>
           </div>
         </>
       )}
