@@ -139,7 +139,7 @@ export default function PlayOnline() {
           </div> */}
             </div>
 
-            <div className="flex-col flex p-5 space-y-5 w-full">
+            <div className="flex-col flex p-5 space-y-5 w-full overflow-hidden">
               <div
                 className="collapse collapse-arrow border-none rounded-md bg-stone-800 hover:bg-stone-700/75"
                 onClick={() => {
@@ -155,7 +155,7 @@ export default function PlayOnline() {
               </div>
 
               {showOptions && (
-                <div className="flex flex-row justify-center space-x-4">
+                <div className="flex flex-row justify-center space-x-4 ">
                   <ChipButton>5 min</ChipButton>
                   <ChipButton>10 min</ChipButton>
                   <ChipButton>30 min</ChipButton>

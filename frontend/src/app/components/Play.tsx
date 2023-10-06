@@ -45,6 +45,7 @@ export const Play = ({
   const [socket, setSocket] = useState<Socket>(connectSocket());
   const [onMove, setOnMove] = useState(false);
   const [inComingFen, setInComingFen] = useState(false);
+  
 
   useEffect(() => {
     setSocket(connectSocket());
@@ -96,6 +97,14 @@ export const Play = ({
     }, 1000);
   };
 
+  const isPawnPromotionMove = (square: string): boolean => {
+    const promotionMoves = moves.filter(
+      (move) => move.promotion && move.to === square && move.piece === "p"
+    );
+
+    return promotionMoves.length > 0;
+  };
+
   const [dots, setDots] = useState("");
 
   useEffect(() => {
@@ -110,7 +119,9 @@ export const Play = ({
         <div className="flex flex-row gap-x-2">
           <div>
             <Image
-              src={`https://www.chess.com/bundles/web/images/${playerColor == "b" ? "white_400" : "black_400"}.png`}
+              src={`https://www.chess.com/bundles/web/images/${
+                playerColor == "b" ? "white_400" : "black_400"
+              }.png`}
               alt="Opponent"
               width={40}
               height={40}
@@ -166,10 +177,24 @@ export const Play = ({
                                 verbose: true,
                               })
                             );
+
+                            console.log(
+                              chess.moves({
+                                square: piece.square,
+                                piece: piece.type,
+                                verbose: true,
+                              })
+                            );
                             setCurrentPosition(piece.square);
                           } else if (shouldHighlightSquare(piece.square)) {
                             chess.load(fen);
-                            if (
+                            if (isPawnPromotionMove(piece.square)) {
+                              chess.move({
+                                from: currentPosition,
+                                to: piece.square,
+                                promotion: "q",
+                              });
+                            } else if (
                               moves.some((move) => move.to === piece.square)
                             ) {
                               chess.move({
@@ -238,6 +263,7 @@ export const Play = ({
                         }`}
                         onClick={() => {
                           if (currentTurn !== playerColor) return;
+
                           if (moves.length > 0) {
                             chess.load(fen);
                             if (moves.some((move) => move.to === square)) {
@@ -294,7 +320,9 @@ export const Play = ({
         <div className="flex flex-row gap-x-2">
           <div>
             <Image
-              src={`https://www.chess.com/bundles/web/images/${playerColor == "b" ? "black_400" : "white_400"}.png`}
+              src={`https://www.chess.com/bundles/web/images/${
+                playerColor == "b" ? "black_400" : "white_400"
+              }.png`}
               alt="Opponent"
               width={40}
               height={40}

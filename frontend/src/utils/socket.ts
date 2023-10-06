@@ -5,7 +5,11 @@ let socketInstance: Socket | null = null;
 
 export const connectSocket = () => {
   if (!socketInstance) {
-    socketInstance = io("ws://192.168.43.200:6001");
+    const ip1 = "192.168.43.126";
+    const ip2 = "192.168.43.200";
+
+    socketInstance = io(`ws://${ip2}:6001`);
+
   }
   return socketInstance;
 };

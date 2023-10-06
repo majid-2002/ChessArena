@@ -40,7 +40,7 @@ const ButtonGray = ({ children, onClick }: Props) => {
 
 const ChipButton = ({ children, onClick }: Props) => {
   return (
-    <button className="btn border-none bg-stone-800 text-sm text-white font-normal hover:bg-stone-700/75 w-auto flex-grow px-9 border-2 rounded-md lowercase" onClick={onClick}>
+    <button className="btn text-xs w-4 border-none bg-stone-800 sm:text-sm text-white font-normal hover:bg-stone-700/75 sm:w-auto flex-grow px-9 border-2 rounded-md lowercase" onClick={onClick}>
       {children}
     </button>
   );
