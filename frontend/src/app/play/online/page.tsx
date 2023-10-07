@@ -105,7 +105,9 @@ export default function PlayOnline() {
     <div className="w-full sm:min-h-[700px] sm:max-h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-10 py-1">
       {/* Chessboard */}
       {isLoading ? (
-        <span className="loading loading-bars loading-md"></span>
+        <div className="w-full flex items-center justify-center h-screen">
+          <span className="loading loading-bars loading-md"></span>
+        </div>
       ) : (
         <>
           <Play

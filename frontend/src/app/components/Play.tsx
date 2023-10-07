@@ -5,7 +5,7 @@ import chessboardPlain from "@/../public/images/board.png";
 import chessBoardDemo from "@/../public/images/Chessboard.png";
 import { pieceImageData } from "@/utils/pieces";
 import Image from "next/image";
-import { Square, Move, Color } from "chess.js";
+import { Square, Move, Color, PieceSymbol } from "chess.js";
 import { Socket } from "socket.io-client";
 import { connectSocket } from "@/utils/socket";
 
@@ -45,7 +45,11 @@ export const Play = ({
   const [socket, setSocket] = useState<Socket>(connectSocket());
   const [onMove, setOnMove] = useState(false);
   const [inComingFen, setInComingFen] = useState(false);
-  
+  const [showPromotion, setShowPromotion] = useState(false);
+  const [promotionPieces, setPromotionPieces] = useState<Move[]>();
+  const [selectedPromotion, setSelectedPromotion] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     setSocket(connectSocket());
@@ -102,6 +106,9 @@ export const Play = ({
       (move) => move.promotion && move.to === square && move.piece === "p"
     );
 
+    setPromotionPieces(promotionMoves);
+    setShowPromotion(promotionMoves.length > 0);
+
     return promotionMoves.length > 0;
   };
 
@@ -141,6 +148,33 @@ export const Play = ({
             </p>
           </div>
         )}
+        {showPromotion && (
+          <div className="h-full absolute w-full  flex justify-center items-center bg-[rgba(0,0,0,0.6)] backdrop-blur-sm z-40">
+            <div className="flex flex-row justify-center items-center gap-x-2">
+              {promotionPieces?.map((move: Move) => (
+                <div
+                  className="flex flex-col items-center justify-center p-1 bg-[rgba(200,200,200,0.6)] rounded-md "
+                  key={move.promotion}
+                  onClick={() => {
+                    setSelectedPromotion(move.promotion as PieceSymbol);
+                    setShowPromotion(false);
+                  }}
+                >
+                  <Image
+                    src={pieceImageData(
+                      move.promotion as PieceSymbol,
+                      move.color
+                    )}
+                    alt="piece"
+                    width={50}
+                    height={50}
+                    className="w-full h-full"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <Image
           src={gameReady ? chessboardPlain : chessBoardDemo}
           alt="Chessboard"
@@ -177,23 +211,18 @@ export const Play = ({
                                 verbose: true,
                               })
                             );
-
-                            console.log(
-                              chess.moves({
-                                square: piece.square,
-                                piece: piece.type,
-                                verbose: true,
-                              })
-                            );
                             setCurrentPosition(piece.square);
                           } else if (shouldHighlightSquare(piece.square)) {
                             chess.load(fen);
                             if (isPawnPromotionMove(piece.square)) {
-                              chess.move({
-                                from: currentPosition,
-                                to: piece.square,
-                                promotion: "q",
-                              });
+                              if (selectedPromotion && !showPromotion) {
+                                chess.move({
+                                  from: currentPosition,
+                                  to: piece.square,
+                                  promotion: selectedPromotion,
+                                });
+                                setSelectedPromotion(null);
+                              }
                             } else if (
                               moves.some((move) => move.to === piece.square)
                             ) {
@@ -266,7 +295,19 @@ export const Play = ({
 
                           if (moves.length > 0) {
                             chess.load(fen);
-                            if (moves.some((move) => move.to === square)) {
+                            if (isPawnPromotionMove(square)) {
+                              if (selectedPromotion && !showPromotion) {
+                                console.log("works here");
+                                chess.move({
+                                  from: currentPosition,
+                                  to: square,
+                                  promotion: selectedPromotion,
+                                });
+                                setSelectedPromotion(null);
+                              }
+                            } else if (
+                              moves.some((move) => move.to === square)
+                            ) {
                               chess.move({
                                 from: currentPosition,
                                 to: square,
