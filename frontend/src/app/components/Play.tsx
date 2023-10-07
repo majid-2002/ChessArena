@@ -45,8 +45,8 @@ export const Play = ({
   const [socket, setSocket] = useState<Socket>(connectSocket());
   const [onMove, setOnMove] = useState(false);
   const [inComingFen, setInComingFen] = useState(false);
-  const [promotionPieces, setPromotionPieces] = useState<Move[]>();
   const [showPromotion, setShowPromotion] = useState(false);
+  const [promotionPieces, setPromotionPieces] = useState<Move[]>();
   const [selectedPromotion, setSelectedPromotion] = useState<string | null>(
     null
   );
@@ -149,11 +149,11 @@ export const Play = ({
           </div>
         )}
         {showPromotion && (
-          <div className="h-full absolute w-full justify-center items-center bg-[rgba(0,0,0,0,0.2)]">
+          <div className="h-full absolute w-full  flex justify-center items-center bg-[rgba(0,0,0,0.6)] backdrop-blur-sm z-40">
             <div className="flex flex-row justify-center items-center gap-x-2">
               {promotionPieces?.map((move: Move) => (
                 <div
-                  className="flex flex-col items-center justify-center"
+                  className="flex flex-col items-center justify-center p-1 bg-[rgba(200,200,200,0.6)] rounded-md "
                   key={move.promotion}
                   onClick={() => {
                     setSelectedPromotion(move.promotion as PieceSymbol);
@@ -166,13 +166,10 @@ export const Play = ({
                       move.color
                     )}
                     alt="piece"
-                    width={200}
-                    height={200}
+                    width={50}
+                    height={50}
                     className="w-full h-full"
                   />
-                  <p className="text-white text-xs font-bold">
-                    {move.promotion?.toUpperCase()}
-                  </p>
                 </div>
               ))}
             </div>
@@ -218,15 +215,13 @@ export const Play = ({
                           } else if (shouldHighlightSquare(piece.square)) {
                             chess.load(fen);
                             if (isPawnPromotionMove(piece.square)) {
-                              if (selectedPromotion) {
+                              if (selectedPromotion && !showPromotion) {
                                 chess.move({
                                   from: currentPosition,
                                   to: piece.square,
                                   promotion: selectedPromotion,
                                 });
                                 setSelectedPromotion(null);
-                              } else {
-                                return;
                               }
                             } else if (
                               moves.some((move) => move.to === piece.square)
@@ -300,7 +295,19 @@ export const Play = ({
 
                           if (moves.length > 0) {
                             chess.load(fen);
-                            if (moves.some((move) => move.to === square)) {
+                            if (isPawnPromotionMove(square)) {
+                              if (selectedPromotion && !showPromotion) {
+                                console.log("works here");
+                                chess.move({
+                                  from: currentPosition,
+                                  to: square,
+                                  promotion: selectedPromotion,
+                                });
+                                setSelectedPromotion(null);
+                              }
+                            } else if (
+                              moves.some((move) => move.to === square)
+                            ) {
                               chess.move({
                                 from: currentPosition,
                                 to: square,
