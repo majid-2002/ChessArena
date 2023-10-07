@@ -34,7 +34,7 @@ export default function PlayOnline() {
     setCurrentTurn(chess.turn());
 
     setTimeout(() => {
-      setIsLoading(false); // Turn off the loading spinner after data is loaded
+      setIsLoading(false);
     }, 2000);
   }, [change, playerColor, setNewfen]);
 
@@ -45,6 +45,10 @@ export default function PlayOnline() {
       handleSocketActions(socket);
     });
   }, []);
+
+  useEffect(() => {
+    handleSocketActions(connectSocket());
+  }, [setStartGame, startGame]);
 
   const handleSocketActions = (socket: Socket) => {
     const initializePlayer = async () => {
@@ -126,9 +130,6 @@ export default function PlayOnline() {
               showModal={showGameInitialSettings}
               setShowModal={setShowGameInitialSettings}
             />
-            // <div className="bg-black h-full w-full absolute">
-            //     <p className="text-4xl">this is a test</p>
-            // </div>
           )}
           <Play
             chess={chess}
@@ -185,7 +186,7 @@ export default function PlayOnline() {
               )}
               <ButtonLime
                 onClick={() => {
-                  if (!showGameInitialSettings) setStartGame(true);
+                  setStartGame(true);
                 }}
               >
                 Play
