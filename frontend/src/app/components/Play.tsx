@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import chessboardPlain from "@/../public/images/board.png";
 import chessBoardDemo from "@/../public/images/Chessboard.png";
 import { pieceImageData } from "@/utils/pieces";
@@ -40,6 +40,14 @@ export const Play = ({
   setPlayerColor,
   gameReady,
 }: PlayProps) => {
+  type CapturedPieceSymbol = "p" | "n" | "b" | "r" | "q";
+
+  type CaputredPieces = {
+    [color in Color]: {
+      [piece in CapturedPieceSymbol]: number;
+    };
+  };
+
   const [currentPosition, setCurrentPosition] = useState<string>("");
   const [moves, setMoves] = useState<Move[]>([]);
   const [socket, setSocket] = useState<Socket>(connectSocket());
@@ -50,6 +58,27 @@ export const Play = ({
   const [selectedPromotion, setSelectedPromotion] = useState<string | null>(
     null
   );
+
+  const [capturedPieces, setCapturedPieces] = useState<CaputredPieces>({
+    w: {
+      p: 0,
+      n: 0,
+      b: 0,
+      r: 0,
+      q: 0,
+    },
+    b: {
+      p: 0,
+      n: 0,
+      b: 0,
+      r: 0,
+      q: 0,
+    },
+  });
+
+  useEffect(() => {
+    console.log(capturedPieces);
+  }, [capturedPieces, setCapturedPieces]);
 
   useEffect(() => {
     setSocket(connectSocket());
@@ -211,6 +240,14 @@ export const Play = ({
                                 verbose: true,
                               })
                             );
+                            console.log(
+                              chess.moves({
+                                square: piece.square,
+                                piece: piece.type,
+                                verbose: true,
+                              })
+                            );
+
                             setCurrentPosition(piece.square);
                           } else if (shouldHighlightSquare(piece.square)) {
                             chess.load(fen);
@@ -230,6 +267,30 @@ export const Play = ({
                                 from: currentPosition,
                                 to: piece.square,
                               });
+
+                              const previousMove = chess.history({
+                                verbose: true,
+                              });
+
+                              if (
+                                previousMove[previousMove.length - 1].captured
+                              ) {
+                                const capturedMove =
+                                  previousMove[previousMove.length - 1];
+                                const pieceColor = capturedMove.color as Color;
+                                const capturedPiece =
+                                  capturedMove.captured as keyof CaputredPieces[Color];
+
+                                setCapturedPieces((prev) => {
+                                  const updatedCapturedPieces = { ...prev };
+
+                                  updatedCapturedPieces[pieceColor][
+                                    capturedPiece
+                                  ]++;
+
+                                  return updatedCapturedPieces;
+                                });
+                              }
                             } else {
                               setMoves([]);
                               return;
