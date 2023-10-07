@@ -423,14 +423,18 @@ export const Play = ({
           <div>
             <Image
               src={`https://www.chess.com/bundles/web/images/${
-                playerColor == "b" ? "black_400" : "white_400"
+                playerColor == "b" && change == "b" ? "black_400" : "white_400"
               }.png`}
               alt="Opponent"
               width={40}
               height={40}
             ></Image>
           </div>
-          <p className="text-white font-bold text-xs p-1">Opponent</p>
+          <p className="text-white font-bold text-xs p-1">
+            {playerColor == change
+              ? "Guest" + localStorage.getItem("playerId")?.slice(0, 10)
+              : "Opponent"}
+          </p>
         </div>
         <div className="flex items-center px-4 font-sans">
           <p className="font-bold text-neutral-500 text-2xl ">3:00</p>

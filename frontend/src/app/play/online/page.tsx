@@ -6,6 +6,7 @@ import { connectSocket } from "@/utils/socket";
 import { Chess, Color } from "chess.js";
 import { Socket } from "socket.io-client";
 import { ButtonGray, ButtonLime, ChipButton } from "@/app/components/Button";
+import Openingoptions from "@/app/components/Openingoptions";
 
 export default function PlayOnline() {
   const chess = new Chess();
@@ -17,6 +18,14 @@ export default function PlayOnline() {
   const [gameReady, setGameReady] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showOptions, setShowOptions] = useState(false);
+  const [opponentId, setOpponentId] = useState<string | null>(null);
+  const [showGameInitialSettings, setShowGameInitialSettings] = useState(false);
+  const [startGame, setStartGame] = useState(false);
+
+  useEffect(() => {
+    const playerId = localStorage.getItem("playerId");
+    if (!playerId) setShowGameInitialSettings(true);
+  }, []);
 
   useEffect(() => {
     chess.load(fen);
@@ -42,7 +51,7 @@ export default function PlayOnline() {
       let roomId = localStorage.getItem("roomId");
       let playerId = localStorage.getItem("playerId");
 
-      if (!roomId || !playerId) {
+      if ((!roomId || !playerId) && startGame) {
         if (!playerId) {
           await new Promise((resolve) => {
             socket.emit("newPlayer", true, (id: string) => {
@@ -81,6 +90,8 @@ export default function PlayOnline() {
               gameData.players.map((player: any) => {
                 if (player._id === playerId) {
                   setPlayerColor(player.playerColor);
+                } else {
+                  setOpponentId(player._id);
                 }
               });
             }
@@ -110,6 +121,15 @@ export default function PlayOnline() {
         </div>
       ) : (
         <>
+          {showGameInitialSettings && (
+            <Openingoptions
+              showModal={showGameInitialSettings}
+              setShowModal={setShowGameInitialSettings}
+            />
+            // <div className="bg-black h-full w-full absolute">
+            //     <p className="text-4xl">this is a test</p>
+            // </div>
+          )}
           <Play
             chess={chess}
             setCurrentTurn={setCurrentTurn}
@@ -163,7 +183,13 @@ export default function PlayOnline() {
                   <ChipButton>30 min</ChipButton>
                 </div>
               )}
-              <ButtonLime>Play</ButtonLime>
+              <ButtonLime
+                onClick={() => {
+                  if (!showGameInitialSettings) setStartGame(true);
+                }}
+              >
+                Play
+              </ButtonLime>
             </div>
 
             {/* <ButtonGray
