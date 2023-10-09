@@ -95,7 +95,6 @@ export default function PlayOnline() {
                 if (player._id === playerId) {
                   setPlayerColor(player.playerColor);
                 } else {
-                  console.log(player._id);
                   setOpponentId(player._id);
                 }
               });
@@ -150,6 +149,7 @@ export default function PlayOnline() {
               setPlayerColor={setPlayerColor}
               gameReady={gameReady}
               opponentId={opponentId}
+              startGame={startGame}
             />
             <div className="sm:w-[30vw] w-full bg-stone-800/40 rounded-md sm:min-h-[95vh] sm:max-h-screen">
               <div className="flex flex-row justify-between w-full items-center">
