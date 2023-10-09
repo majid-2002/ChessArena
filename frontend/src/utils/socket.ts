@@ -9,7 +9,7 @@ export const connectSocket = () => {
     const ip2 = "192.168.43.200";
     const ip3 = "192.168.215.126";
 
-    socketInstance = io(`ws://${ip3}:6001`);
+    socketInstance = io(`ws://${ip2}:6001`);
   }
   return socketInstance;
 };

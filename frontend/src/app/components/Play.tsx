@@ -76,8 +76,18 @@ export const Play = ({
     },
   });
 
+  const [promotionMoveFromAndTo, setPromotionMoveFromAndTo] = useState<{
+    from: string;
+    to: string;
+  }>();
+
+  // useEffect(() => {
+  //   console.log(selectedPromotion);
+  //   console.log(promotionPieces);
+  // }, [selectedPromotion, promotionPieces]);
+
   useEffect(() => {
-    console.log(capturedPieces);
+    // console.log(capturedPieces);
   }, [capturedPieces, setCapturedPieces]);
 
   useEffect(() => {
@@ -198,6 +208,7 @@ export const Play = ({
             </p>
           </div>
         )}
+
         {showPromotion && (
           <div className="h-full absolute w-full  flex justify-center items-center bg-[rgba(0,0,0,0.6)] backdrop-blur-sm z-40">
             <div className="flex flex-row justify-center items-center gap-x-2">
@@ -206,8 +217,30 @@ export const Play = ({
                   className="flex flex-col items-center justify-center p-1 bg-[rgba(200,200,200,0.6)] rounded-md "
                   key={move.promotion}
                   onClick={() => {
-                    setSelectedPromotion(move.promotion as PieceSymbol);
-                    setShowPromotion(false);
+                    console.log(promotionMoveFromAndTo);
+                    console.log(chess.moves({ verbose: true }));
+
+                    if (promotionMoveFromAndTo) {
+                      chess.move({
+                        from: promotionMoveFromAndTo.from,
+                        to: promotionMoveFromAndTo.to,
+                        promotion: move.promotion as PieceSymbol,
+                      });
+                      setNewfen(chess.fen());
+                      setOnMove(true);
+                      setCurrentTurn(chess.turn());
+                      setBoardArray(
+                        change == "w" ? chess.board() : chess.board().reverse()
+                      );
+                      setMoves([]);
+                      setCurrentPosition(promotionMoveFromAndTo.to);
+                      setShowPromotion(false);
+                      getCaputredPieces();
+
+                      if (playComputer) {
+                        makeComputerMove();
+                      }
+                    }
                   }}
                 >
                   <Image
@@ -225,6 +258,7 @@ export const Play = ({
             </div>
           </div>
         )}
+
         <Image
           src={gameReady ? chessboardPlain : chessBoardDemo}
           alt="Chessboard"
@@ -264,16 +298,13 @@ export const Play = ({
                             setCurrentPosition(piece.square);
                           } else if (shouldHighlightSquare(piece.square)) {
                             chess.load(fen);
+
                             if (isPawnPromotionMove(piece.square)) {
-                              if (selectedPromotion && !showPromotion) {
-                                chess.move({
-                                  from: currentPosition,
-                                  to: piece.square,
-                                  promotion: selectedPromotion,
-                                });
-                                getCaputredPieces();
-                                setSelectedPromotion(null);
-                              }
+                              setPromotionMoveFromAndTo({
+                                from: currentPosition,
+                                to: piece.square,
+                              });
+                              return;
                             } else if (
                               moves.some((move) => move.to === piece.square)
                             ) {
@@ -286,6 +317,7 @@ export const Play = ({
                               setMoves([]);
                               return;
                             }
+
                             setNewfen(chess.fen());
                             setOnMove(true);
                             setCurrentTurn(chess.turn());
@@ -296,6 +328,7 @@ export const Play = ({
                             );
                             setMoves([]);
                             setCurrentPosition(piece.square);
+
                             if (playComputer) {
                               makeComputerMove();
                             }
@@ -348,15 +381,11 @@ export const Play = ({
                           if (moves.length > 0) {
                             chess.load(fen);
                             if (isPawnPromotionMove(square)) {
-                              if (selectedPromotion && !showPromotion) {
-                                chess.move({
-                                  from: currentPosition,
-                                  to: square,
-                                  promotion: selectedPromotion,
-                                });
-                                getCaputredPieces();
-                                setSelectedPromotion(null);
-                              }
+                              setPromotionMoveFromAndTo({
+                                from: currentPosition,
+                                to: square,
+                              });
+                              return;
                             } else if (
                               moves.some((move) => move.to === square)
                             ) {
