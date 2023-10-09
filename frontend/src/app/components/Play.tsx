@@ -23,6 +23,7 @@ interface PlayProps {
   playerColor: Color | null;
   setPlayerColor: (playerColor: Color) => void;
   gameReady: boolean;
+  opponentId: string | null;
 }
 
 export const Play = ({
@@ -39,6 +40,7 @@ export const Play = ({
   playerColor,
   setPlayerColor,
   gameReady,
+  opponentId,
 }: PlayProps) => {
   type CapturedPieceSymbol = "p" | "n" | "b" | "r" | "q";
 
@@ -115,6 +117,7 @@ export const Play = ({
     }
   });
 
+  //? Captured Pieces Logic
   const getCaputredPieces = () => {
     const previousMove = chess.history({
       verbose: true,
@@ -136,9 +139,11 @@ export const Play = ({
     }
   };
 
+  //? Highlighting Logic
   const shouldHighlightSquare = (square: Square) =>
     moves.some((move) => move.to === square);
 
+  //? Computer Logic
   const makeComputerMove = () => {
     setTimeout(() => {
       if (chess.turn() === "b") {
@@ -152,6 +157,7 @@ export const Play = ({
     }, 1000);
   };
 
+  //? Pawn Promotion Logic
   const isPawnPromotionMove = (square: string): boolean => {
     const promotionMoves = moves.filter(
       (move) => move.promotion && move.to === square && move.piece === "p"
@@ -185,13 +191,18 @@ export const Play = ({
               height={40}
             ></Image>
           </div>
-          <p className="text-white font-bold text-xs p-1">Opponent</p>
+          <p className="text-white font-bold text-xs p-1">
+            {playerColor == change
+              ? "Guest" + opponentId?.slice(-10)
+              : "Opponent"}
+          </p>
         </div>
         <div className={"flex items-center px-4 font-sans"}>
           <p className="font-bold text-neutral-500 text-2xl">3:00</p>
         </div>
       </div>
       <div className="relative h-full w-full">
+        {/* Player Waiting to load the game */}
         {!gameReady && (
           <div className="h-full absolute w-full backdrop-blur-sm z-10 flex items-center justify-center bg-[rgba(0,0,0,0.6)]">
             <p className="text-xl sm:text-4xl font-bold text-neutral-300 text-center">
@@ -200,6 +211,7 @@ export const Play = ({
           </div>
         )}
 
+        {/* Player Promotion Selection Modal */}
         {showPromotion && (
           <div className="h-full absolute w-full  flex justify-center items-center bg-[rgba(0,0,0,0.6)] backdrop-blur-sm z-40">
             <div className="flex flex-row justify-center items-center gap-x-2">
@@ -252,6 +264,8 @@ export const Play = ({
           alt="Chessboard"
           className="w-full h-full"
         />
+
+        {/* Main Logic for the game */}
         <div className="grid grid-cols-8 grid-rows-8 absolute top-0 w-full ">
           {gameReady &&
             boardArray.map((row: any, rowIndex: number) => {
@@ -286,7 +300,6 @@ export const Play = ({
                             setCurrentPosition(piece.square);
                           } else if (shouldHighlightSquare(piece.square)) {
                             chess.load(fen);
-
                             if (isPawnPromotionMove(piece.square)) {
                               setPromotionMoveFromAndTo({
                                 from: currentPosition,
@@ -441,8 +454,8 @@ export const Play = ({
           </div>
           <p className="text-white font-bold text-xs p-1">
             {playerColor == change
-              ? "Guest" + localStorage.getItem("playerId")?.slice(0, 10)
-              : "Opponent"}
+              ? "Guest" + localStorage.getItem("playerId")?.slice(-10)
+              : "You"}
           </p>
         </div>
         <div className="flex items-center px-4 font-sans">

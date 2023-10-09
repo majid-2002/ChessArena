@@ -95,6 +95,7 @@ export default function PlayOnline() {
                 if (player._id === playerId) {
                   setPlayerColor(player.playerColor);
                 } else {
+                  console.log(player._id);
                   setOpponentId(player._id);
                 }
               });
@@ -148,6 +149,7 @@ export default function PlayOnline() {
               playerColor={playerColor}
               setPlayerColor={setPlayerColor}
               gameReady={gameReady}
+              opponentId={opponentId}
             />
             <div className="sm:w-[30vw] w-full bg-stone-800/40 rounded-md sm:min-h-[95vh] sm:max-h-screen">
               <div className="flex flex-row justify-between w-full items-center">
@@ -156,13 +158,13 @@ export default function PlayOnline() {
                   <p className="text-sm">New Game</p>
                 </div>
                 {/* <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1">
-            <AiFillPlusSquare className="text-2xl" />
-            <p className="text-xs">Games</p>
-          </div>
-          <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1">
-            <AiFillPlusSquare className="text-2xl" />
-            <p className="text-xs">Players</p>
-          </div> */}
+                <AiFillPlusSquare className="text-2xl" />
+                <p className="text-xs">Games</p>
+              </div>
+              <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1">
+                <AiFillPlusSquare className="text-2xl" />
+                <p className="text-xs">Players</p>
+              </div> */}
               </div>
 
               <div className="flex-col flex p-5 space-y-5 w-full overflow-hidden">
