@@ -114,6 +114,27 @@ export const Play = ({
     }
   });
 
+  const getCaputredPieces = () => {
+    const previousMove = chess.history({
+      verbose: true,
+    });
+
+    if (previousMove[previousMove.length - 1].captured) {
+      const capturedMove = previousMove[previousMove.length - 1];
+      const pieceColor = capturedMove.color as Color;
+      const capturedPiece =
+        capturedMove.captured as keyof CaputredPieces[Color];
+
+      setCapturedPieces((prev) => {
+        const updatedCapturedPieces = { ...prev };
+
+        updatedCapturedPieces[pieceColor][capturedPiece]++;
+
+        return updatedCapturedPieces;
+      });
+    }
+  };
+
   const shouldHighlightSquare = (square: Square) =>
     moves.some((move) => move.to === square);
 
@@ -240,14 +261,6 @@ export const Play = ({
                                 verbose: true,
                               })
                             );
-                            console.log(
-                              chess.moves({
-                                square: piece.square,
-                                piece: piece.type,
-                                verbose: true,
-                              })
-                            );
-
                             setCurrentPosition(piece.square);
                           } else if (shouldHighlightSquare(piece.square)) {
                             chess.load(fen);
@@ -258,6 +271,7 @@ export const Play = ({
                                   to: piece.square,
                                   promotion: selectedPromotion,
                                 });
+                                getCaputredPieces();
                                 setSelectedPromotion(null);
                               }
                             } else if (
@@ -267,30 +281,7 @@ export const Play = ({
                                 from: currentPosition,
                                 to: piece.square,
                               });
-
-                              const previousMove = chess.history({
-                                verbose: true,
-                              });
-
-                              if (
-                                previousMove[previousMove.length - 1].captured
-                              ) {
-                                const capturedMove =
-                                  previousMove[previousMove.length - 1];
-                                const pieceColor = capturedMove.color as Color;
-                                const capturedPiece =
-                                  capturedMove.captured as keyof CaputredPieces[Color];
-
-                                setCapturedPieces((prev) => {
-                                  const updatedCapturedPieces = { ...prev };
-
-                                  updatedCapturedPieces[pieceColor][
-                                    capturedPiece
-                                  ]++;
-
-                                  return updatedCapturedPieces;
-                                });
-                              }
+                              getCaputredPieces();
                             } else {
                               setMoves([]);
                               return;
@@ -358,12 +349,12 @@ export const Play = ({
                             chess.load(fen);
                             if (isPawnPromotionMove(square)) {
                               if (selectedPromotion && !showPromotion) {
-                                console.log("works here");
                                 chess.move({
                                   from: currentPosition,
                                   to: square,
                                   promotion: selectedPromotion,
                                 });
+                                getCaputredPieces();
                                 setSelectedPromotion(null);
                               }
                             } else if (
@@ -373,6 +364,7 @@ export const Play = ({
                                 from: currentPosition,
                                 to: square,
                               });
+                              getCaputredPieces();
                             } else {
                               setMoves([]);
                               return;
