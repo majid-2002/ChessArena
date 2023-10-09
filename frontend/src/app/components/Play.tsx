@@ -77,11 +77,6 @@ export const Play = ({
     to: string;
   }>();
 
-  // useEffect(() => {
-  //   console.log(selectedPromotion);
-  //   console.log(promotionPieces);
-  // }, [selectedPromotion, promotionPieces]);
-
   useEffect(() => {
     // console.log(capturedPieces);
   }, [capturedPieces, setCapturedPieces]);
@@ -213,9 +208,6 @@ export const Play = ({
                   className="flex flex-col items-center justify-center p-1 bg-[rgba(200,200,200,0.6)] rounded-md "
                   key={move.promotion}
                   onClick={() => {
-                    console.log(promotionMoveFromAndTo);
-                    console.log(chess.moves({ verbose: true }));
-
                     if (promotionMoveFromAndTo) {
                       chess.move({
                         from: promotionMoveFromAndTo.from,
