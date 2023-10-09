@@ -12,10 +12,7 @@ const Openingoptions = ({
 }) => {
   const SkillLevel = [
     { piece: "p", level: "New to Chess" },
-    {
-      piece: "n",
-      level: "Beginner",
-    },
+    { piece: "n", level: "Beginner" },
     { piece: "r", level: "Intermediate" },
     { piece: "q", level: "Advanced" },
   ];
@@ -25,7 +22,7 @@ const Openingoptions = ({
       <dialog id="my_modal_3" className={`modal ${showModal && "modal-open"}`}>
         <form
           method="dialog"
-          className="modal-box flex items-center flex-col space-y-4 p-2 bg-stone-900 sm:w-1/2 sm:max-w-[480px] sm:p-10 max-h-screen"
+          className="modal-box flex items-center flex-col space-y-4 p-2 bg-[#262421] sm:w-1/2 sm:max-w-[480px] sm:p-10 max-h-screen"
         >
           <button
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-neutral-700 text-xl font-semibold"
@@ -36,7 +33,9 @@ const Openingoptions = ({
             ✕
           </button>
           <div className="text-center">
-            <h3 className="sm:text-4xl text-white font-bold text-2xl ">Play Online Chess</h3>
+            <h3 className="sm:text-4xl text-white font-bold text-2xl ">
+              Play Online Chess
+            </h3>
             <p className="py-2 font-semibold text-neutral-400 text-sm sm:text-xl">
               what is your skill level ?
             </p>
@@ -44,7 +43,7 @@ const Openingoptions = ({
           <div className="w-full p-5 flex flex-col space-y-9">
             <div className="w-full flex flex-col space-y-4">
               {SkillLevel.map((skill) => (
-                <div className="bg-stone-800 rounded-lg hover:bg-stone-700 w-full overflow-hidden p-2 py-3 gap-2 flex  justify-center items-center">
+                <div className="bg-[#312E2B] rounded-lg hover:bg-stone-700 w-full overflow-hidden p-2 py-3 gap-2 flex  justify-center items-center">
                   <Image
                     src={pieceImageData(skill.piece as PieceSymbol, "w")}
                     alt={skill.level}

@@ -169,7 +169,7 @@ export const Play = ({
           <p className="font-bold text-neutral-500 text-2xl">3:00</p>
         </div>
       </div>
-      <div className="relative">
+      <div className="relative h-full w-full">
         {!gameReady && (
           <div className="h-full absolute w-full backdrop-blur-sm z-10 flex items-center justify-center bg-[rgba(0,0,0,0.6)]">
             <p className="text-xl sm:text-4xl font-bold text-neutral-300 text-center">

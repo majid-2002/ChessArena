@@ -117,42 +117,45 @@ export default function PlayOnline() {
   };
 
   return (
-    <div className="w-full sm:min-h-[700px] sm:max-h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-10 py-1">
+    <div>
       {/* Chessboard */}
       {isLoading ? (
         <div className="w-full flex items-center justify-center h-screen">
           <span className="loading loading-bars loading-md"></span>
         </div>
       ) : (
-        <>
-          {showGameInitialSettings && (
-            <Openingoptions
-              showModal={showGameInitialSettings}
-              setShowModal={setShowGameInitialSettings}
+        <div>
+          <div>
+            {showGameInitialSettings && (
+              <Openingoptions
+                showModal={showGameInitialSettings}
+                setShowModal={setShowGameInitialSettings}
+              />
+            )}
+          </div>
+          <div className="w-full sm:min-h-[700px] sm:max-h-screen flex flex-col sm:flex-row items-center justify-center sm:space-x-10 py-1">
+            <Play
+              chess={chess}
+              setCurrentTurn={setCurrentTurn}
+              currentTurn={currentTurn}
+              boardArray={boardArray}
+              setBoardArray={setBoardArray}
+              playComputer={false}
+              change={change}
+              setChange={setChange}
+              fen={fen}
+              setNewfen={setNewfen}
+              playerColor={playerColor}
+              setPlayerColor={setPlayerColor}
+              gameReady={gameReady}
             />
-          )}
-          <Play
-            chess={chess}
-            setCurrentTurn={setCurrentTurn}
-            currentTurn={currentTurn}
-            boardArray={boardArray}
-            setBoardArray={setBoardArray}
-            playComputer={false}
-            change={change}
-            setChange={setChange}
-            fen={fen}
-            setNewfen={setNewfen}
-            playerColor={playerColor}
-            setPlayerColor={setPlayerColor}
-            gameReady={gameReady}
-          />
-          <div className="sm:w-[30vw] w-full bg-stone-800/40 rounded-md sm:min-h-[95vh] sm:max-h-screen">
-            <div className="flex flex-row justify-between w-full items-center">
-              <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1 bg-stone-700/25 rounded-md m-1">
-                <AiFillPlusSquare className="text-2xl" />
-                <p className="text-sm">New Game</p>
-              </div>
-              {/* <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1">
+            <div className="sm:w-[30vw] w-full bg-stone-800/40 rounded-md sm:min-h-[95vh] sm:max-h-screen">
+              <div className="flex flex-row justify-between w-full items-center">
+                <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1 bg-stone-700/25 rounded-md m-1">
+                  <AiFillPlusSquare className="text-2xl" />
+                  <p className="text-sm">New Game</p>
+                </div>
+                {/* <div className="items-center flex justify-center flex-col p-4 text-slate-200 w-full space-y-1">
             <AiFillPlusSquare className="text-2xl" />
             <p className="text-xs">Games</p>
           </div>
@@ -160,48 +163,49 @@ export default function PlayOnline() {
             <AiFillPlusSquare className="text-2xl" />
             <p className="text-xs">Players</p>
           </div> */}
-            </div>
-
-            <div className="flex-col flex p-5 space-y-5 w-full overflow-hidden">
-              <div
-                className="collapse collapse-arrow border-none rounded-md bg-stone-800 hover:bg-stone-700/75"
-                onClick={() => {
-                  setShowOptions(!showOptions);
-                }}
-              >
-                <p
-                  className="collapse-title text-base text-neutral-200 text-center font-semibold"
-                  style={{ paddingLeft: "3em" }}
-                >
-                  10 min
-                </p>
               </div>
 
-              {showOptions && (
-                <div className="flex flex-row justify-center space-x-4 ">
-                  <ChipButton>5 min</ChipButton>
-                  <ChipButton>10 min</ChipButton>
-                  <ChipButton>30 min</ChipButton>
+              <div className="flex-col flex p-5 space-y-5 w-full overflow-hidden">
+                <div
+                  className="collapse collapse-arrow border-none rounded-md bg-stone-800 hover:bg-stone-700/75"
+                  onClick={() => {
+                    setShowOptions(!showOptions);
+                  }}
+                >
+                  <p
+                    className="collapse-title text-base text-neutral-200 text-center font-semibold"
+                    style={{ paddingLeft: "3em" }}
+                  >
+                    10 min
+                  </p>
                 </div>
-              )}
-              <ButtonLime
-                onClick={() => {
-                  setStartGame(true);
-                }}
-              >
-                Play
-              </ButtonLime>
-            </div>
 
-            {/* <ButtonGray
+                {showOptions && (
+                  <div className="flex flex-row justify-center space-x-4 ">
+                    <ChipButton>5 min</ChipButton>
+                    <ChipButton>10 min</ChipButton>
+                    <ChipButton>30 min</ChipButton>
+                  </div>
+                )}
+                <ButtonLime
+                  onClick={() => {
+                    setStartGame(true);
+                  }}
+                >
+                  Play
+                </ButtonLime>
+              </div>
+
+              {/* <ButtonGray
                 onClick={() => {
                   setChange(change === "w" ? "b" : "w");
                 }}
               >
                 Change
               </ButtonGray> */}
+            </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

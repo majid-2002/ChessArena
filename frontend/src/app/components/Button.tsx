@@ -24,7 +24,7 @@ const ButtonLime = ({ children, onClick }: Props) => {
 
 const ButtonGray = ({ children, onClick }: Props) => {
   return (
-    <div className="bg-stone-800 w-full flex items-center justify-center rounded-lg text-center shadow-xl sm:text-2xl text-neutral-300 font-extrabold border border-b-4 border-black/25 hover:bg-neutral-700 hover:border-neutral-800/30 transition-all duration-300 hover:shadow-2xl">
+    <div className="bg-[#312E2B] w-full flex items-center justify-center rounded-lg text-center shadow-xl sm:text-2xl text-neutral-300 font-extrabold border border-b-4 border-black/25 hover:bg-neutral-700 hover:border-neutral-800/30 transition-all duration-300 hover:shadow-2xl">
       <button
         className="py-2.5 w-full font-bold"
         style={{
