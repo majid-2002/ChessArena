@@ -55,10 +55,6 @@ export const Play = ({
   const [inComingFen, setInComingFen] = useState(false);
   const [showPromotion, setShowPromotion] = useState(false);
   const [promotionPieces, setPromotionPieces] = useState<Move[]>();
-  const [selectedPromotion, setSelectedPromotion] = useState<string | null>(
-    null
-  );
-
   const [capturedPieces, setCapturedPieces] = useState<CaputredPieces>({
     w: {
       p: 0,
