@@ -8,6 +8,14 @@ import { Socket } from "socket.io-client";
 import { ButtonGray, ButtonLime, ChipButton } from "@/app/components/Button";
 import Openingoptions from "@/app/components/Openingoptions";
 
+export type CapturedPieceSymbol = "p" | "n" | "b" | "r" | "q";
+
+export type CapturedPieces = {
+  [color in Color]: {
+    [piece in CapturedPieceSymbol]: number;
+  };
+};
+
 export default function PlayOnline() {
   const chess = new Chess();
   const [change, setChange] = useState<Color>("w");
@@ -21,6 +29,22 @@ export default function PlayOnline() {
   const [opponentId, setOpponentId] = useState<string | null>(null);
   const [showGameInitialSettings, setShowGameInitialSettings] = useState(false);
   const [startGame, setStartGame] = useState(false);
+  const [capturedPieces, setCapturedPieces] = useState<CapturedPieces>({
+    w: {
+      p: 0,
+      n: 0,
+      b: 0,
+      r: 0,
+      q: 0,
+    },
+    b: {
+      p: 0,
+      n: 0,
+      b: 0,
+      r: 0,
+      q: 0,
+    },
+  });
 
   useEffect(() => {
     const playerId = localStorage.getItem("playerId");
@@ -151,6 +175,8 @@ export default function PlayOnline() {
               gameReady={gameReady}
               opponentId={opponentId}
               startGame={startGame}
+              capturedPieces={capturedPieces}
+              setCapturedPieces={setCapturedPieces}
             />
             <div className="sm:w-[30vw] w-full bg-stone-800/40 rounded-md sm:min-h-[95vh] sm:max-h-screen">
               <div className="flex flex-row justify-between w-full items-center">

@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Square, Move, Color, PieceSymbol } from "chess.js";
 import { Socket } from "socket.io-client";
 import { connectSocket } from "@/utils/socket";
+import { CapturedPieces } from "../play/online/page";
 
 interface PlayProps {
   boardArray: any;
@@ -25,6 +26,8 @@ interface PlayProps {
   gameReady: boolean;
   opponentId: string | null;
   startGame: boolean;
+  capturedPieces: CapturedPieces;
+  setCapturedPieces: (capturedPieces: any) => void;
 }
 
 export const Play = ({
@@ -43,15 +46,9 @@ export const Play = ({
   gameReady,
   opponentId,
   startGame,
+  capturedPieces,
+  setCapturedPieces,
 }: PlayProps) => {
-  type CapturedPieceSymbol = "p" | "n" | "b" | "r" | "q";
-
-  type CaputredPieces = {
-    [color in Color]: {
-      [piece in CapturedPieceSymbol]: number;
-    };
-  };
-
   const [currentPosition, setCurrentPosition] = useState<string>("");
   const [moves, setMoves] = useState<Move[]>([]);
   const [socket, setSocket] = useState<Socket>(connectSocket());
@@ -59,31 +56,15 @@ export const Play = ({
   const [inComingFen, setInComingFen] = useState(false);
   const [showPromotion, setShowPromotion] = useState(false);
   const [promotionPieces, setPromotionPieces] = useState<Move[]>();
-  const [capturedPieces, setCapturedPieces] = useState<CaputredPieces>({
-    w: {
-      p: 0,
-      n: 0,
-      b: 0,
-      r: 0,
-      q: 0,
-    },
-    b: {
-      p: 0,
-      n: 0,
-      b: 0,
-      r: 0,
-      q: 0,
-    },
-  });
 
   const [promotionMoveFromAndTo, setPromotionMoveFromAndTo] = useState<{
     from: string;
     to: string;
   }>();
 
-  useEffect(() => {
-    // console.log(capturedPieces);
-  }, [capturedPieces, setCapturedPieces]);
+  // useEffect(() => {
+  // console.log(capturedPieces);
+  // }, [capturedPieces, setCapturedPieces]);
 
   useEffect(() => {
     setSocket(connectSocket());
@@ -120,7 +101,7 @@ export const Play = ({
   });
 
   //? Captured Pieces Logic
-  const getCaputredPieces = () => {
+  const getCapturedPieces = () => {
     const previousMove = chess.history({
       verbose: true,
     });
@@ -129,9 +110,10 @@ export const Play = ({
       const capturedMove = previousMove[previousMove.length - 1];
       const pieceColor = capturedMove.color as Color;
       const capturedPiece =
-        capturedMove.captured as keyof CaputredPieces[Color];
+        capturedMove.captured as keyof CapturedPieces[Color];
 
-      setCapturedPieces((prev) => {
+      //add type for the prev state
+      setCapturedPieces((prev: CapturedPieces) => {
         const updatedCapturedPieces = { ...prev };
 
         updatedCapturedPieces[pieceColor][capturedPiece]++;
@@ -234,6 +216,7 @@ export const Play = ({
                         to: promotionMoveFromAndTo.to,
                         promotion: move.promotion as PieceSymbol,
                       });
+                      getCapturedPieces();
                       setNewfen(chess.fen());
                       setOnMove(true);
                       setCurrentTurn(chess.turn());
@@ -243,7 +226,6 @@ export const Play = ({
                       setMoves([]);
                       setCurrentPosition(promotionMoveFromAndTo.to);
                       setShowPromotion(false);
-                      getCaputredPieces();
 
                       if (playComputer) {
                         makeComputerMove();
@@ -321,7 +303,7 @@ export const Play = ({
                                 from: currentPosition,
                                 to: piece.square,
                               });
-                              getCaputredPieces();
+                              getCapturedPieces();
                             } else {
                               setMoves([]);
                               return;
@@ -402,7 +384,7 @@ export const Play = ({
                                 from: currentPosition,
                                 to: square,
                               });
-                              getCaputredPieces();
+                              getCapturedPieces();
                             } else {
                               setMoves([]);
                               return;
