@@ -171,13 +171,17 @@ export const Play = ({
     return promotionMoves.length > 0;
   };
 
-  const [dots, setDots] = useState("");
+  const [loadingDots, setLoadingDots] = useState(0);
 
   useEffect(() => {
-    setInterval(() => {
-      setDots((prevdot) => (prevdot.length < 3 ? prevdot + "." : ""));
-    }, 1000);
-  }, [gameReady]);
+    const intervalId = setInterval(() => {
+      setLoadingDots((dots) => (dots + 1) % 4);
+    }, 500);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const loadingText = "Searching" + ".".repeat(loadingDots);
 
   return (
     <div className=" w-full sm:w-1/2 justify-center flex flex-col items-center space-y-2">
@@ -194,8 +198,10 @@ export const Play = ({
             ></Image>
           </div>
           <p className="text-white font-bold text-xs p-1">
-            {playerColor == change
-              ? "Guest" + opponentId?.slice(-10)
+            {playerColor === change && !startGame
+              ? "Guest" + (opponentId ? opponentId.slice(-10) : "")
+              : startGame && !opponentId
+              ? loadingText
               : "Opponent"}
           </p>
         </div>
@@ -205,13 +211,13 @@ export const Play = ({
       </div>
       <div className="relative h-full w-full">
         {/* Player Waiting to load the game */}
-        {startGame && (
+        {/* {startGame && (
           <div className="h-full absolute w-full backdrop-blur-sm z-10 flex items-center justify-center bg-[rgba(0,0,0,0.6)]">
             <p className="text-xl sm:text-4xl font-bold text-neutral-300 text-center">
               Waiting for opponent {dots.split("").join(" ")}
             </p>
           </div>
-        )}
+        )} */}
 
         {/* Player Promotion Selection Modal */}
         {showPromotion && (
