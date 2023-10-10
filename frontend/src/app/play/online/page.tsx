@@ -101,6 +101,7 @@ export default function PlayOnline() {
               });
             }
             setGameReady(gameData.gameReady);
+            setStartGame(false);
           } else {
             setGameReady(gameData.gameReady); //here it is false
           }
@@ -150,6 +151,7 @@ export default function PlayOnline() {
               setPlayerColor={setPlayerColor}
               gameReady={gameReady}
               opponentId={opponentId}
+              startGame={startGame}
             />
             <div className="sm:w-[30vw] w-full bg-stone-800/40 rounded-md sm:min-h-[95vh] sm:max-h-screen">
               <div className="flex flex-row justify-between w-full items-center">
