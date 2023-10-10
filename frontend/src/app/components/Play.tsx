@@ -205,7 +205,7 @@ export const Play = ({
       </div>
       <div className="relative h-full w-full">
         {/* Player Waiting to load the game */}
-        {!gameReady && startGame && (
+        {!gameReady && (
           <div className="h-full absolute w-full backdrop-blur-sm z-10 flex items-center justify-center bg-[rgba(0,0,0,0.6)]">
             <p className="text-xl sm:text-4xl font-bold text-neutral-300 text-center">
               Waiting for opponent {dots.split("").join(" ")}

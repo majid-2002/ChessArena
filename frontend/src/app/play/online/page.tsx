@@ -100,6 +100,7 @@ export default function PlayOnline() {
               });
             }
             setGameReady(gameData.gameReady);
+            setStartGame(false);
           } else {
             setGameReady(gameData.gameReady); //here it is false
           }
