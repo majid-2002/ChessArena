@@ -19,6 +19,11 @@ const gameSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    capturedPieces: {
+      type: Object,
+      required: false,
+      default: {},
+    },
   },
   {
     timestamps: true,

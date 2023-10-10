@@ -112,6 +112,9 @@ export default function PlayOnline() {
           console.log(cb);
         });
         socket.on("startGame", async (gameData) => {
+          
+          console.log(gameData);
+          
           if (gameData.gameReady) {
             setNewfen(gameData.fen);
             if (gameData.players) {

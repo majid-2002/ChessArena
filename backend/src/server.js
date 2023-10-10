@@ -136,6 +136,7 @@ export function setupSocketIO(server) {
           gameReady: true,
           players: game.players,
           fen: game.fen,
+          capturedPieces: game.capturedPieces,
         });
       } else {
         socket.emit("startGame", {
@@ -163,9 +164,10 @@ export function setupSocketIO(server) {
       cb(`joined room ${roomId}`);
     });
 
-    socket.on("gameUpdate", async (roomId, fen, cb) => {
-
+    socket.on("gameUpdate", async (roomId, fen, capturedPieces, cb) => {
       console.log("updated fen", fen);
+
+      console.log(capturedPieces);
 
       let game = await gameModel
         .findOne({ roomId: roomId })
@@ -175,15 +177,14 @@ export function setupSocketIO(server) {
         return cb("Game not found");
       }
 
-
       game.fen = fen;
+      game.capturedPieces = capturedPieces;
       await game.save();
 
-      socket.to(roomId).emit("gameUpdate", fen);
-      
+      socket.to(roomId).emit("gameUpdate", fen, capturedPieces);
+
       cb("Game updated");
     });
-
   });
 }
 

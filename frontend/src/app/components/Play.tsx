@@ -86,17 +86,22 @@ export const Play = ({
     let playerId = localStorage.getItem("playerId");
 
     if (playerId && roomId && gameReady && onMove) {
-      socket.emit("gameUpdate", roomId, fen, (cb: string) => {
+      socket.emit("gameUpdate", roomId, fen, capturedPieces, (cb: string) => {
         setOnMove(false);
         console.log(cb);
       });
     }
   };
 
-  socket.on("gameUpdate", (updatedFen) => {
+  socket.on("gameUpdate", (updatedFen, updatedCapturedPieces) => {
     if (updatedFen) {
       setInComingFen(true);
       setNewfen(updatedFen);
+    }
+
+    if (updatedCapturedPieces) {
+      console.log(updatedCapturedPieces);
+      setCapturedPieces(updatedCapturedPieces);
     }
   });
 
