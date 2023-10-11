@@ -58,7 +58,7 @@ export function setupSocketIO(server) {
       cb(newPlayer._id);
     });
 
-    socket.on("createGame", async (playerId, fen, cb) => {
+    socket.on("createGame", async (playerId, fen, capturedPieces, cb) => {
       try {
         const player = await playerModel.findById(playerId).exec();
 
@@ -88,9 +88,14 @@ export function setupSocketIO(server) {
             roomId: roomId,
             players: selectedPlayers.map((p) => p._id),
             fen: fen,
+            capturedPieces: capturedPieces,
           });
 
+          
           await newGame.save();
+
+          
+          console.log(newGame);
 
           selectedPlayers.forEach((p) => {
             io.to(p.socketId).emit("gameCreated", {

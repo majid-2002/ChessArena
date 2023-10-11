@@ -63,7 +63,7 @@ export const Play = ({
   }>();
 
   // useEffect(() => {
-  // console.log(capturedPieces);
+  //   console.log(capturedPieces);
   // }, [capturedPieces, setCapturedPieces]);
 
   useEffect(() => {
@@ -94,13 +94,14 @@ export const Play = ({
   };
 
   socket.on("gameUpdate", (updatedFen, updatedCapturedPieces) => {
+    console.log(updatedCapturedPieces);
+
     if (updatedFen) {
       setInComingFen(true);
       setNewfen(updatedFen);
     }
 
     if (updatedCapturedPieces) {
-      console.log(updatedCapturedPieces);
       setCapturedPieces(updatedCapturedPieces);
     }
   });
@@ -117,7 +118,6 @@ export const Play = ({
       const capturedPiece =
         capturedMove.captured as keyof CapturedPieces[Color];
 
-      //add type for the prev state
       setCapturedPieces((prev: CapturedPieces) => {
         const updatedCapturedPieces = { ...prev };
 

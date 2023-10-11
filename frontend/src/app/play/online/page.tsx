@@ -5,7 +5,7 @@ import { Play } from "@/app/components/Play";
 import { connectSocket } from "@/utils/socket";
 import { Chess, Color } from "chess.js";
 import { Socket } from "socket.io-client";
-import { ButtonGray, ButtonLime, ChipButton } from "@/app/components/Button";
+import { ButtonLime, ChipButton } from "@/app/components/Button";
 import Openingoptions from "@/app/components/Openingoptions";
 
 export type CapturedPieceSymbol = "p" | "n" | "b" | "r" | "q";
@@ -112,11 +112,9 @@ export default function PlayOnline() {
           console.log(cb);
         });
         socket.on("startGame", async (gameData) => {
-          
-          console.log(gameData);
-          
           if (gameData.gameReady) {
             setNewfen(gameData.fen);
+            setCapturedPieces(gameData.capturedPieces);
             if (gameData.players) {
               gameData.players.map((player: any) => {
                 if (player._id === playerId) {
@@ -139,7 +137,7 @@ export default function PlayOnline() {
   };
 
   const createGame = (socket: Socket, playerId: string) => {
-    socket.emit("createGame", playerId, fen, (cb: any) => {
+    socket.emit("createGame", playerId, fen, capturedPieces, (cb: any) => {
       console.log(cb);
     });
   };

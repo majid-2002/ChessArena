@@ -22,7 +22,6 @@ const gameSchema = new mongoose.Schema(
     capturedPieces: {
       type: Object,
       required: false,
-      default: {},
     },
   },
   {
