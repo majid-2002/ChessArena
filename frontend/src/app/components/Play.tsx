@@ -184,13 +184,58 @@ export const Play = ({
               height={40}
             ></Image>
           </div>
-          <p className="text-white font-bold text-xs p-1">
-            {playerColor === change && !startGame
-              ? "Guest" + (opponentId ? opponentId.slice(-10) : "")
-              : startGame && !opponentId
-              ? loadingText
-              : "Opponent"}
-          </p>
+          <div className="flex flex-col">
+            <p className="text-white font-bold text-xs p-1">
+              {playerColor === change && !startGame
+                ? "Guest" + (opponentId ? opponentId.slice(-10) : "")
+                : startGame && !opponentId
+                ? loadingText
+                : "Opponent"}
+            </p>
+            <div className="flex flex-row">
+              {playerColor === change && playerColor === "w"
+                ? Object.entries(capturedPieces.b).map(
+                    ([piece, count]) =>
+                      count > 0 && (
+                        <div className="flex flex-row items-center justify-center -space-x-3">
+                          {Array(count)
+                            .fill(0)
+                            .map((_, index) => (
+                              <Image
+                                key={index}
+                                src={pieceImageData(piece as PieceSymbol, "w")}
+                                alt="piece"
+                                width={25}
+                                height={25}
+                                className="w-5 h-5"
+                              />
+                            ))}
+                        </div>
+                      )
+                  )
+                : playerColor === change && playerColor === "b"
+                ? Object.entries(capturedPieces.w).map(
+                    ([piece, count]) =>
+                      count > 0 && (
+                        <div className="flex flex-row items-center justify-center -space-x-3">
+                          {Array(count)
+                            .fill(0)
+                            .map((_, index) => (
+                              <Image
+                                key={index}
+                                src={pieceImageData(piece as PieceSymbol, "b")}
+                                alt="piece"
+                                width={25}
+                                height={25}
+                                className="w-5 h-5"
+                              />
+                            ))}
+                        </div>
+                      )
+                  )
+                : null}
+            </div>
+          </div>
         </div>
         <div className={"flex items-center px-4 font-sans"}>
           <p className="font-bold text-neutral-500 text-2xl">3:00</p>
@@ -447,11 +492,56 @@ export const Play = ({
               height={40}
             ></Image>
           </div>
-          <p className="text-white font-bold text-xs p-1">
-            {playerColor == change
-              ? "Guest" + localStorage.getItem("playerId")?.slice(-10)
-              : "You"}
-          </p>
+          <div className="flex flex-col">
+            <p className="text-white font-bold text-xs p-1">
+              {playerColor == change
+                ? "Guest" + localStorage.getItem("playerId")?.slice(-10)
+                : "You"}
+            </p>
+            <div className="flex flex-row">
+              {playerColor === change && playerColor === "w"
+                ? Object.entries(capturedPieces.w).map(
+                    ([piece, count]) =>
+                      count > 0 && (
+                        <div className="flex flex-row items-center justify-center -space-x-3">
+                          {Array(count)
+                            .fill(0)
+                            .map((_, index) => (
+                              <Image
+                                key={index}
+                                src={pieceImageData(piece as PieceSymbol, "b")}
+                                alt="piece"
+                                width={25}
+                                height={25}
+                                className="w-5 h-5"
+                              />
+                            ))}
+                        </div>
+                      )
+                  )
+                : playerColor === change && playerColor === "b"
+                ? Object.entries(capturedPieces.b).map(
+                    ([piece, count]) =>
+                      count > 0 && (
+                        <div className="flex flex-row items-center justify-center -space-x-3">
+                          {Array(count)
+                            .fill(0)
+                            .map((_, index) => (
+                              <Image
+                                key={index}
+                                src={pieceImageData(piece as PieceSymbol, "w")}
+                                alt="piece"
+                                width={25}
+                                height={25}
+                                className="w-5 h-5"
+                              />
+                            ))}
+                        </div>
+                      )
+                  )
+                : null}
+            </div>
+          </div>
         </div>
         <div className="flex items-center px-4 font-sans">
           <p className="font-bold text-neutral-500 text-2xl ">3:00</p>
