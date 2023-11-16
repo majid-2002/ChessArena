@@ -35,7 +35,7 @@ mongoose
   .catch((error) => console.log(`${error} did not connect`));
 
 app.get("/", (req, res) => {
-  res.send("Welcome to ChessArena!");
+  res.json({ message: "Welcome from ChessArena!" });
 });
 
 // SOCKET.IO CONFIGURATION
