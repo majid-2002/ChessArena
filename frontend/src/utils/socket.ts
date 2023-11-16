@@ -8,9 +8,10 @@ export const connectSocket = () => {
     const ip1 = "192.168.43.126";
     const ip2 = "192.168.43.200";
     const ip3 = "192.168.215.126";
-    const ip4 = "192.168.137.1";
+    const ip4 = "10.32.7.208";
+    const local = "localhost"
 
-    socketInstance = io(`ws://${ip2}:6001`);
+    socketInstance = io(`ws://${local}:6001`);
   }
   return socketInstance;
 };

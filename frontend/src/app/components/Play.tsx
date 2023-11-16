@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import chessboardPlain from "@/../public/images/board.png";
 import chessBoardDemo from "@/../public/images/Chessboard.png";
 import { pieceImageData } from "@/utils/pieces";
@@ -56,6 +56,7 @@ export const Play = ({
   const [inComingFen, setInComingFen] = useState(false);
   const [showPromotion, setShowPromotion] = useState(false);
   const [promotionPieces, setPromotionPieces] = useState<Move[]>();
+  const [loadingDots, setLoadingDots] = useState(0);
 
   const [promotionMoveFromAndTo, setPromotionMoveFromAndTo] = useState<{
     from: string;
@@ -158,7 +159,7 @@ export const Play = ({
     return promotionMoves.length > 0;
   };
 
-  const [loadingDots, setLoadingDots] = useState(0);
+
 
   useEffect(() => {
     const intervalId = setInterval(() => {

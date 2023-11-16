@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="flex flex-col min-h-screen w-full py-9 ">
+    <main className="flex flex-col min-h-screen w-full py-9 justify-center">
       <div className="flex">
         <div className="w-1/2 hidden items-center justify-center sm:flex">
           <Image

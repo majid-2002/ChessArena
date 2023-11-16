@@ -34,6 +34,10 @@ mongoose
   })
   .catch((error) => console.log(`${error} did not connect`));
 
+app.get("/", (req, res) => {
+  res.send("Welcome to ChessArena!");
+});
+
 // SOCKET.IO CONFIGURATION
 export function setupSocketIO(server) {
   const io = new Server(server, {
@@ -91,10 +95,8 @@ export function setupSocketIO(server) {
             capturedPieces: capturedPieces,
           });
 
-          
           await newGame.save();
 
-          
           console.log(newGame);
 
           selectedPlayers.forEach((p) => {
