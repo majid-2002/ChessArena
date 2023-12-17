@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRouter } from "next/navigation";
+import { post } from "@/api/api";
 
 export default function Page() {
   const router = useRouter();
