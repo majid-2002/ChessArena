@@ -12,9 +12,7 @@ export const connectSocket = () => {
     const local = "localhost";
     const apiUrl = "api-chess-arena.vercel.app";
 
-    socketInstance = io(local, {
-      transports: ["websocket"],
-    });
+    socketInstance = io(`ws://${local}:6001`);
   }
   return socketInstance;
 };

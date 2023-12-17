@@ -1,7 +1,8 @@
-import userDetailsModel from "../models/userDetails";
-import userModel from "../models/userModel";
+import userDetailsModel from "../models/userDetails.js";
+import userModel from "../models/userModel.js";
 import express from "express";
 import bcrypt from "bcrypt";
+import Joi from "joi";
 
 const router = express.Router();
 
