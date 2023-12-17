@@ -10,9 +10,25 @@ export default function Page() {
   const router = useRouter();
   const [user] = useAuthState(auth);
 
+  const storeUserDetails = async () => {
+    if (user) {
+      const token = await user.getIdToken(); // Get the token
+      const userDetails = {
+        name: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        uid: user.uid,
+        token,
+      };
+
+      await post("/api/storeUserDetails", userDetails);
+    }
+  };
+
   useEffect(() => {
     if (user) {
       router.push("/play/online");
+      storeUserDetails(); // Call the function when the user logs in
     }
   }, [user]);
 
