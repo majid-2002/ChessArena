@@ -7,6 +7,7 @@ import morgan from "morgan";
 import { Server } from "socket.io";
 import playerModel from "./models/playerModel.js";
 import gameModel from "./models/gameModel.js";
+import userRoutes from "./routes/user.js";
 
 //* CONFIGURATIONS
 const app = express();
@@ -199,6 +200,5 @@ function generateUniqueRoomId() {
   return Math.random().toString(36).substring(2, 8);
 }
 
-app.get("/", (req, res) => {
-  res.send("Hello world!");
-});
+//* ROUTES
+app.use("/api", userRoutes);
